@@ -31,8 +31,9 @@ app.delete('/api/bookings/:id/delete', bookingController.deleteBooking);
 app.get('/api/listings', listingController.getAllListings);
 app.post('/api/listings/create', listingController.createListing);
 app.get('/api/listings/:id', listingController.getListingById);
-app.put('/api/listings/:id/update', listingController.updateListing);
 app.delete('/api/listings/:id/delete', listingController.deleteListing);
+app.post('/api/listings/:id/favourite', listingController.favouriteListing);
+app.get('/api/listings/favourites', listingController.getFavouritedListings);
 
 // Review Routes
 app.get('/api/reviews', reviewController.getAllReviews);
