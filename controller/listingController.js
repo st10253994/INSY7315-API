@@ -32,20 +32,3 @@ exports.deleteListing = async (req, res) => {
     res.status(404).json({ error: error.message });
   }};
 
-exports.favouriteListing = async (req, res) => {
-  try {
-    const result = await listingService.favouriteListing(req.params.id);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  } 
-};
-
-exports.getFavouritedListings = async (req, res) => {
-  try {
-    const listings = await listingService.getFavouritedListings();
-    res.status(200).json(listings);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};

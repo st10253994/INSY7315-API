@@ -19,6 +19,7 @@ const listingController = require('./controller/listingController');
 const reviewController = require('./controller/reviewController');
 const userController = require('./controller/userController');
 const notificationController = require('./controller/notificationController');
+const favouriteController = require('./controller/favouriteController');
 
 // Booking Routes
 app.get('/api/bookings', bookingController.getAllBookings);
@@ -32,8 +33,11 @@ app.get('/api/listings', listingController.getAllListings);
 app.post('/api/listings/create', listingController.createListing);
 app.get('/api/listings/:id', listingController.getListingById);
 app.delete('/api/listings/:id/delete', listingController.deleteListing);
-app.post('/api/listings/:id/favourite', listingController.favouriteListing);
-app.get('/api/listings/favourites', listingController.getFavouritedListings);
+
+// Favourite Routes
+app.post('/api/:id/favourite', favouriteController.favouriteListing);
+app.get('/api/favourites', favouriteController.favouriteListings);
+app.delete('/api/:id/unfavourite', favouriteController.unfavouriteListing);
 
 // Review Routes
 app.get('/api/reviews', reviewController.getAllReviews);

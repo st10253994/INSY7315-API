@@ -2,9 +2,16 @@ const { client } = require('../database/db');
 const { ObjectId } = require('mongodb'); 
 
 function toObjectId(id) {
-  if (id instanceof ObjectId) return id; // already valid
-  if (typeof id === "string") return new ObjectId(id); 
-  throw new Error("Invalid id format");
+  // If already an ObjectId, return it
+  if (id instanceof ObjectId) return id;
+
+  // If it's a string and is valid, convert
+  if (typeof id === "string" && ObjectId.isValid(id)) {
+    return new ObjectId(id);
+  }
+
+  // Otherwise, throw error
+  throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
 // CREATE
@@ -43,7 +50,7 @@ async function getAllListings() {
     const listings = await listingsCollection.find({}).toArray();
     return listings;
   } catch (error) {
-    throw new Error(`Error fetching listings: ${error.message}`);
+    throw new Error(`Error fetching all listings: ${error.message}`);
   }
 }
 
@@ -58,7 +65,7 @@ async function getListingById(id) {
     }
     return listing;
   } catch (error) {
-    throw new Error(`Error fetching listing: ${error.message}`);
+    throw new Error(`Error fetching listings by ID: ${error.message}`);
   }
 }
 
@@ -79,45 +86,10 @@ async function deleteListing(id) {
   }
 }
 
-async function favouriteListing(id) {
-  try {
-    const db = client.db('RentWise');
-    const listingCollection = db.collection('Listings');
-    const favouritesCollection = db.collection('Favourites');
-
-    const listing = await listingCollection.findOne({ _id: toObjectId(id) });
-    if (!listing) throw new Error("Listing not found");
-
-    const favouriteListing = {
-      title: listing.title,
-      description: listing.description,
-      price: listing.price,
-    };
-
-    await favouritesCollection.updateOne(
-      { listingId: toObjectId(id) },
-      { $set: { favouriteListing, favouritedAt: new Date() } },
-      { upsert: true }
-    );
-    return { message: "Listing favourited" };
-  } catch (error) {
-    throw new Error(`Error favouriting listing: ${error.message}`);
-  }
-}
-
-async function getFavouritedListings() {
-  const db = client.db('RentWise');
-  const favouritesCollection = db.collection('Favourites');
-
-  const favourites = await favouritesCollection.find({}).toArray();
-  return favourites;
-}
 
 module.exports = {
   createListing,
   getAllListings,
   getListingById,
-  deleteListing,
-  favouriteListing,
-  getFavouritedListings
+  deleteListing
 };
