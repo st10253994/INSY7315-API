@@ -1,0 +1,39 @@
+const login = require('../service/loginService');
+const register = require('../service/registerService');
+const profile = require('../service/profileService');
+
+exports.registerUser = async (req, res) => {
+    try {
+        const newUser = await register.registerUser(req.body);
+        res.status(201).json(newUser);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+exports.loginUser = async (req, res) => {
+    try {
+        const user = await login.loginUser(req.body);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(401).json({ error: error.message });
+    }
+};
+
+exports.postUserProfile = async (req, res) => {
+    try {
+        const userProfile = await profile.postUserProfile({userId: req.params.id, ...req.body});
+        res.status(201).json(userProfile);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+exports.getUserById = async (req, res) => {
+    try {
+        const user = await profile.getProfileById(req.params.id);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
