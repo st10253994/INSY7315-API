@@ -51,7 +51,8 @@ async function registerUser(data) {
         return {
             _id: userId,
             email: newUser.email,
-            createdAt: newUser.createdAt
+            createdAt: newUser.createdAt, 
+            message: "User registered Successfully"
         };
 
     } catch (error) {
