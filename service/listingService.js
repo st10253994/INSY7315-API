@@ -16,30 +16,25 @@ function toObjectId(id) {
 
 // CREATE
 async function createListing(data) {
-  const { listingID, title, description, price } = data;
-  
+  const { title, description, price, images = [] } = data;
+
   if (!title || !description || !price) {
-    throw new Error("Title, description, and price are required");
+    throw new Error('Title, description, and price are required');
   }
 
-  try {
-    const db = client.db('RentWise');
-    const listingsCollection = db.collection('Listings');
+  const db = client.db('RentWise');
+  const listingsCollection = db.collection('Listings');
 
-    const newListing = {
+  const newListing = {
     title,
     description,
     price,
-    createdAt: new Date()
-    };
+    images, // store Cloudinary URLs
+    createdAt: new Date(),
+  };
 
-    
-
-    const result = await listingsCollection.insertOne(newListing);
-    return { message: "Listing created", listingId: result.insertedId };
-  } catch (error) {
-    throw new Error(`Error creating listing: ${error.message}`);
-  }
+  const result = await listingsCollection.insertOne(newListing);
+  return { message: 'Listing created', listingId: result.insertedId };
 }
 
 // READ all

@@ -1,4 +1,4 @@
-const favouriteService = require('../service/FavouriteService');
+const favouriteService = require('../service/favouriteService');
 
 exports.favouriteListing = async (req, res) => {
     try {

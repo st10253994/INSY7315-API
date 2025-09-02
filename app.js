@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth')
+const { upload } = require('./database/cloudinary');
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // Parse JSON bodies
@@ -31,7 +33,7 @@ app.put('/api/bookings/:id/update', checkAuth, bookingController.updateBooking);
 
 // Listing Routes
 app.get('/api/listings', checkAuth, listingController.getAllListings);
-app.post('/api/listings/create', checkAuth, listingController.createListing);
+app.post('/api/listings/create', checkAuth, upload.array('images', 10), listingController.createListing);
 app.get('/api/listings/:id', checkAuth, listingController.getListingById);
 app.delete('/api/listings/:id/delete', checkAuth, listingController.deleteListing);
 

@@ -27,6 +27,7 @@ async function favouriteListing(id) {
       title: listing.title,
       description: listing.description,
       price: listing.price,
+      images: listing.images
     };
 
     await favouritesCollection.updateOne(

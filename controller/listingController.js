@@ -10,11 +10,23 @@ exports.getAllListings = async (req, res) => {
 
 exports.createListing = async (req, res) => {
   try {
-    const newListing = await listingService.createListing(req.body);
+    const files = req.files || [];
+
+    if (!files.length) {
+      console.log("No files uploaded");
+    }
+
+    const imageUrls = files.map(file => file.path);
+    const data = { ...req.body, images: imageUrls };
+
+    const newListing = await listingService.createListing(data);
     res.status(201).json(newListing);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: error.message });
-  }};
+  }
+};
+
 
 exports.getListingById = async (req, res) => {
   try {
