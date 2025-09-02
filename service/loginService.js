@@ -1,5 +1,6 @@
 const { client } = require('../database/db');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function loginUser(data) {
     const { email, password } = data;
@@ -24,11 +25,19 @@ async function loginUser(data) {
             throw new Error("Invalid email or password");
         }
 
+        // Generate JWT token
+        const token = jwt.sign(
+        { email },
+        "ThisIsTheStringForMyTokenGenerationThisIsSecure",
+        { expiresIn: "1h" }
+        );
+
         // Return safe response
         return {
             message: "Login successful",
             userId: user._id,
-            email: user.email
+            email: user.email, 
+            token: token
         };
     } catch (error) {
         throw new Error(`Error logging in: ${error.message}`);

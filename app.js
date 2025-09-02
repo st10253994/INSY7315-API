@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
+const { checkAuth } = require('./Auth/checkAuth')
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // Parse JSON bodies
@@ -22,26 +23,26 @@ const notificationController = require('./controller/notificationController');
 const favouriteController = require('./controller/favouriteController');
 
 // Booking Routes
-app.get('/api/bookings', bookingController.getAllBookings);
-app.post('/api/bookings/:id/create', bookingController.createBooking);
-app.get('/api/bookings/:id', bookingController.getBookingById);
-app.delete('/api/bookings/:id/delete', bookingController.deleteBooking);
-app.put('/api/bookings/:id/update', bookingController.updateBooking);
+app.get('/api/bookings', checkAuth, bookingController.getAllBookings);
+app.post('/api/bookings/:id/create', checkAuth, bookingController.createBooking);
+app.get('/api/bookings/:id', checkAuth, bookingController.getBookingById);
+app.delete('/api/bookings/:id/delete', checkAuth, bookingController.deleteBooking);
+app.put('/api/bookings/:id/update', checkAuth, bookingController.updateBooking);
 
 // Listing Routes
-app.get('/api/listings', listingController.getAllListings);
-app.post('/api/listings/create', listingController.createListing);
-app.get('/api/listings/:id', listingController.getListingById);
-app.delete('/api/listings/:id/delete', listingController.deleteListing);
+app.get('/api/listings', checkAuth, listingController.getAllListings);
+app.post('/api/listings/create', checkAuth, listingController.createListing);
+app.get('/api/listings/:id', checkAuth, listingController.getListingById);
+app.delete('/api/listings/:id/delete', checkAuth, listingController.deleteListing);
 
 // Favourite Routes
-app.post('/api/:id/favourite', favouriteController.favouriteListing);
-app.get('/api/favourites', favouriteController.favouriteListings);
-app.delete('/api/:id/unfavourite', favouriteController.unfavouriteListing);
+app.post('/api/:id/favourite', checkAuth, favouriteController.favouriteListing);
+app.get('/api/favourites', checkAuth, favouriteController.favouriteListings);
+app.delete('/api/:id/unfavourite', checkAuth, favouriteController.unfavouriteListing);
 
 // Review Routes
-app.get('/api/reviews', reviewController.getAllReviews);
-app.post('/api/reviews/:id/create', reviewController.createReview);
+app.get('/api/reviews', checkAuth, reviewController.getAllReviews);
+app.post('/api/reviews/:id/create', checkAuth, reviewController.createReview);
 
 // User Routes
 app.post('/api/users/register', userController.registerUser);
@@ -50,8 +51,8 @@ app.get('/api/users/:id', userController.getUserById);
 app.post('/api/users/:id/profile', userController.postUserProfile);
 
 // Notification Routes
-app.get('/api/notifications', notificationController.getAllNotifications);
-app.post('/api/notifications/create', notificationController.createNotification);
+app.get('/api/notifications', checkAuth, notificationController.getAllNotifications);
+app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
 
 // Start server
 app.listen(PORT, () => {
