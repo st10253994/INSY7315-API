@@ -3,33 +3,40 @@ const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
 
 function toObjectId(id) {
-  if (id instanceof ObjectId) return id; // already valid
-  if (typeof id === "string") return new ObjectId(id); 
-  throw new Error("Invalid id format");
+  // If already an ObjectId, return it
+  if (id instanceof ObjectId) return id;
+
+  // If it's a string and is valid, convert
+  if (typeof id === "string" && ObjectId.isValid(id)) {
+    return new ObjectId(id);
+  }
+
+  // Otherwise, throw error
+  throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
 // CREATE
-async function createBooking(data) {
+async function createBooking(id, data) {
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
-  const { customerName, date, service } = data;
-  if (!customerName || !date || !service) {
-    throw new Error('Missing booking details');
+  const {startDate, endDate, guestAmount } = data;
+
+  if (!startDate || !endDate || !guestAmount) {
+    throw new Error('Missing required booking fields');
   }
 
-  const newBooking = { customerName, date, service };
-  const result = await bookings.insertOne(newBooking);
-
-  if (!result.acknowledged) throw new Error('Failed to create Booking');
-
-  return {
-    _Id: result.insertedId.toString(),
-    customer: newBooking.customerName,
-    date: newBooking.date,
-    service: newBooking.service,
-    message: 'Booking successfully created',
+  const newBooking = {
+    listingId: toObjectId(id),
+    guestAmount: data.guestAmount,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    createdAt: new Date(),
+    status: 'pending'
   };
+
+  const result = await bookings.insertOne(newBooking);
+  return { _id: result.insertedId, ...newBooking };
 }
 
 // READ all
@@ -52,41 +59,28 @@ async function getBookingById(id) {
   return booking;
 }
 
-// UPDATE (partial)
+//update 
 async function updateBooking(id, data) {
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
-  let _id;
-  try { _id = new ObjectId(id); } catch { throw new Error('Invalid booking id'); }
+  const updateData = {};
+  if (data.guestAmount !== undefined) updateData.guestAmount = data.guestAmount;
+  if (data.startDate !== undefined) updateData.startDate = data.startDate;
+  if (data.endDate !== undefined) updateData.endDate = data.endDate;
+  if (data.status !== undefined) updateData.status = data.status;
+  if (Object.keys(updateData).length === 0) throw new Error('No valid fields to update');
 
-  const { customerName, date, service } = data;
-  const update = {};
-  if (customerName !== undefined) update.customerName = customerName;
-  if (date !== undefined) update.date = date;
-  if (service !== undefined) update.service = service;
-
-  if (Object.keys(update).length === 0) {
-    throw new Error('No valid fields to update');
-  }
-
-  const result = await bookings.findOneAndUpdate(
-    { _id },
-    { $set: update },
-    { returnDocument: 'after' }
+  const result = await bookings.updateOne(
+    { _id: toObjectId(id) },
+    { $set: updateData }
   );
+  if (result.matchedCount === 0) throw new Error('Booking not found');
+  if (result.modifiedCount === 0) throw new Error('No changes were made to the booking');
 
-  if (!result.value) throw new Error('Booking not found');
-
-  const b = result.value;
-  return {
-    _Id: b._id.toString(),
-    customer: b.customerName,
-    date: b.date,
-    service: b.service,
-    message: 'Booking updated',
-  };
+  return { message: 'Booking updated' };
 }
+
 
 // DELETE
 async function deleteBooking(id) {
@@ -94,7 +88,7 @@ async function deleteBooking(id) {
   const bookings = db.collection('Bookings');
 
   let _id;
-  try { _id = new ObjectId(id); } catch { throw new Error('Invalid booking id'); }
+  try { _id = toObjectId(id); } catch { throw new Error('Invalid booking id'); }
 
   const result = await bookings.deleteOne({ _id });
   if (result.deletedCount === 0) throw new Error('Booking not found');
@@ -105,7 +99,7 @@ async function deleteBooking(id) {
 module.exports = {
   createBooking,   // working
   getAllBookings,  // now defined
-  getBookingById,  // deduped & correct
-  updateBooking,   // mongo-based
+  getBookingById, // working
   deleteBooking,   // mongo-based
+  updateBooking   // newly added
 };

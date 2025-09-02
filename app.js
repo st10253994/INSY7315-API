@@ -23,10 +23,10 @@ const favouriteController = require('./controller/favouriteController');
 
 // Booking Routes
 app.get('/api/bookings', bookingController.getAllBookings);
-app.post('/api/bookings/create', bookingController.createBooking);
+app.post('/api/bookings/:id/create', bookingController.createBooking);
 app.get('/api/bookings/:id', bookingController.getBookingById);
-app.put('/api/bookings/:id/update', bookingController.updateBooking);
 app.delete('/api/bookings/:id/delete', bookingController.deleteBooking);
+app.put('/api/bookings/:id/update', bookingController.updateBooking);
 
 // Listing Routes
 app.get('/api/listings', listingController.getAllListings);

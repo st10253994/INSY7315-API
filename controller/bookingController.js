@@ -1,3 +1,4 @@
+const e = require('express');
 const bookingService = require('../service/bookingService');
 
 exports.getAllBookings = async (req, res) => {
@@ -10,7 +11,7 @@ exports.getAllBookings = async (req, res) => {
 
 exports.createBooking = async (req, res) => {
   try {
-    const newBooking = await bookingService.createBooking(req.body);
+    const newBooking = await bookingService.createBooking(req.params.id, req.body);
     res.status(201).json(newBooking);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -25,12 +26,14 @@ exports.getBookingById = async (req, res) => {
   }};
 
   exports.updateBooking = async (req, res) => {
-  try {
-    const updatedBooking = await bookingService.updateBooking(req.params.id, req.body);
-    res.status(200).json(updatedBooking);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }};
+    try {
+      const updatedBooking = await bookingService.updateBooking(req.params.id, req.body);
+      res.status(200).json(updatedBooking);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  };
+
 
 exports.deleteBooking = async (req, res) => {
   try {
