@@ -41,7 +41,7 @@ app.delete('/api/:id/unfavourite', favouriteController.unfavouriteListing);
 
 // Review Routes
 app.get('/api/reviews', reviewController.getAllReviews);
-app.post('/api/reviews/create', reviewController.createReview);
+app.post('/api/reviews/:id/create', reviewController.createReview);
 
 // User Routes
 app.post('/api/users/register', userController.registerUser);
