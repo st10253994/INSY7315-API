@@ -6,8 +6,8 @@ exports.registerUser = async (req, res) => {
     try {
         console.log(`Registration Request received ${JSON.stringify(req.body, null, 2)}`);
         const newUser = await register.registerUser(req.body);
-        console.log(`Registration was successful: ${JSON.stringify(res.status(201), null, 2)}`);
         res.status(201).json(newUser);
+        console.log(`Registration was successful: ${res.statusCode}`);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -17,8 +17,8 @@ exports.loginUser = async (req, res) => {
     try {
         console.log(`Login Request received ${JSON.stringify(req.body, null, 2)}`);
         const user = await login.loginUser(req.body);
-        console.log(`Login was successful: ${JSON.stringify(res.status(200), null, 2)}`);
         res.status(200).json(user);
+        console.log(`Login was successful: ${res.statusCode}`);
     } catch (error) {
         res.status(401).json({ error: error.message });
     }
