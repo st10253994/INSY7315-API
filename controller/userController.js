@@ -4,7 +4,9 @@ const profile = require('../service/profileService');
 
 exports.registerUser = async (req, res) => {
     try {
+        console.log(`Registration Request received ${JSON.stringify(req.body, null, 2)}`);
         const newUser = await register.registerUser(req.body);
+        console.log(`Registration was successful: ${res.status(201)}`);
         res.status(201).json(newUser);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -15,7 +17,7 @@ exports.loginUser = async (req, res) => {
     try {
         console.log(`Login Request received ${JSON.stringify(req.body, null, 2)}`);
         const user = await login.loginUser(req.body);
-        console.log(`Login was successful: ${user.token}`);
+        console.log(`Login was successful: ${res.status(200)}`);
         res.status(200).json(user);
     } catch (error) {
         res.status(401).json({ error: error.message });
