@@ -35,7 +35,7 @@ app.put('/api/bookings/:id/update', checkAuth, bookingController.updateBooking);
 
 // Listing Routes
 app.get('/api/listings', checkAuth, listingController.getAllListings);
-app.post('/api/listings/create', checkAuth, upload.array('images', 10), listingController.createListing);
+app.post('/api/:id/listings/create', checkAuth, upload.array('imageURL', 10), listingController.createListing);
 app.get('/api/listings/:id', checkAuth, listingController.getListingById);
 app.delete('/api/listings/:id/delete', checkAuth, listingController.deleteListing);
 

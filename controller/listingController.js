@@ -11,15 +11,16 @@ exports.getAllListings = async (req, res) => {
 exports.createListing = async (req, res) => {
   try {
     const files = req.files || [];
+    const id = req.params.id; // Get landlord ID from URL parameters
 
     if (!files.length) {
       console.log("No files uploaded");
     }
 
     const imageUrls = files.map(file => file.path);
-    const data = { ...req.body, images: imageUrls };
+    const data = { ...req.body, imagesURL: imageUrls };
 
-    const newListing = await listingService.createListing(data);
+    const newListing = await listingService.createListing(id, data);
     res.status(201).json(newListing);
   } catch (error) {
     console.error(error);
