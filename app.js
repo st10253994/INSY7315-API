@@ -51,7 +51,7 @@ app.post('/api/reviews/:id/create', checkAuth, reviewController.createReview);
 // User Routes
 app.post('/api/users/register', userController.registerUser);
 app.post('/api/users/login', userController.loginUser);
-app.get('/api/users/:id', userController.getUserById);
+app.get('/api/users/:id', userController.getUserById);   
 app.post('/api/users/:id/profile', userController.postUserProfile);
 
 // Notification Routes
