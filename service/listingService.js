@@ -1,4 +1,5 @@
 const { client } = require('../database/db');
+const landlordDetails = require('./profileService')
 const { ObjectId } = require('mongodb'); 
 
 function toObjectId(id) {
@@ -16,36 +17,63 @@ function toObjectId(id) {
 
 // CREATE
 async function createListing(id ,data) {
-  const { title, address, description, amenities = [], imagesURL = [], price, isFavourited} = data;
+  try {
+    const { title, address, description, amenities = [], imagesURL = [], price, isFavourited} = data;
 
-  if (!title || !address || !description || !price) {
-    throw new Error('Title, address, description, and price are required');
+    if (!title || !address || !description || !price) {
+      throw new Error('Title, address, description, and price are required');
+    }
+  
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) {
+      throw new Error('Price must be a valid number');
+    }
+
+    //if you give a single amenity, convert to array
+    if (typeof amenities === 'string') {
+      data.amenities = [amenities];
+    }
+
+    //if amenities is not an array, throw error
+    if (!Array.isArray(amenities)) {
+      throw new Error('Amenities must be an array of strings');
+    }
+
+    
+
+    // Ensure landlord ID is valid
+
+    const db = client.db('RentWise');
+    const listingsCollection = db.collection('Listings');
+
+    const user = await landlordDetails.getProfileById(id); // Verify landlord exists
+
+    const landlordInfo = {
+      landlord: user._id,
+      firstName: user.firstName,
+      surname: user.surname,
+      phone : user.phone,
+      email : user.email,
+    }
+    
+
+    const newListing = {
+      title,
+      address,
+      description,
+      amenities,
+      imagesURL,
+      parsedPrice,
+      isFavourited: isFavourited || false,
+      landlordInfo,
+      createdAt: new Date()
+    };
+
+    const result = await listingsCollection.insertOne(newListing);
+    return { message: 'Listing created', listingId: result.insertedId };
+  } catch (error) {
+    throw new Error(`Error creating listing: ${error.message}`);
   }
- 
-  const parsedPrice = parseFloat(price);
-  if (isNaN(parsedPrice)) {
-    throw new Error('Price must be a valid number');
-  }
-
-  // Ensure landlord ID is valid
-
-  const db = client.db('RentWise');
-  const listingsCollection = db.collection('Listings');
-
-  const newListing = {
-    title,
-    address,
-    description,
-    amenities,
-    imagesURL,
-    parsedPrice,
-    isFavourited: isFavourited || false,
-    landlord: toObjectId(id),
-    createdAt: new Date()
-  };
-
-  const result = await listingsCollection.insertOne(newListing);
-  return { message: 'Listing created', listingId: result.insertedId };
 }
 
 // READ all
