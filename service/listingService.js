@@ -15,22 +15,33 @@ function toObjectId(id) {
 }
 
 // CREATE
-async function createListing(data) {
-  const { title, description, price, images = [] } = data;
+async function createListing(id ,data) {
+  const { title, address, description, amenities = [], imagesURL = [], price, isFavourited} = data;
 
-  if (!title || !description || !price) {
-    throw new Error('Title, description, and price are required');
+  if (!title || !address || !description || !price) {
+    throw new Error('Title, address, description, and price are required');
   }
+ 
+  const parsedPrice = parseFloat(price);
+  if (isNaN(parsedPrice)) {
+    throw new Error('Price must be a valid number');
+  }
+
+  // Ensure landlord ID is valid
 
   const db = client.db('RentWise');
   const listingsCollection = db.collection('Listings');
 
   const newListing = {
     title,
+    address,
     description,
-    price,
-    images, // store Cloudinary URLs
-    createdAt: new Date(),
+    amenities,
+    imagesURL,
+    parsedPrice,
+    isFavourited: isFavourited || false,
+    landlord: toObjectId(id),
+    createdAt: new Date()
   };
 
   const result = await listingsCollection.insertOne(newListing);
