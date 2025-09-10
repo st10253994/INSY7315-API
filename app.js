@@ -29,7 +29,7 @@ const maintenanceController = require('./controller/maintenanceController');
 
 // Booking Routes
 app.get('/api/bookings', checkAuth, bookingController.getAllBookings);
-app.post('/api/bookings/:id/create', checkAuth, bookingController.createBooking);
+app.post('/api/bookings/:id/create', checkAuth, upload.array('supportDocuments', 10),  bookingController.createBooking);
 app.get('/api/bookings/:id', checkAuth, bookingController.getBookingById);
 app.delete('/api/bookings/:id/delete', checkAuth, bookingController.deleteBooking);
 app.put('/api/bookings/:id/update', checkAuth, bookingController.updateBooking);
@@ -60,7 +60,7 @@ app.get('/api/notifications', checkAuth, notificationController.getAllNotificati
 app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
 
 // Maintenance Routes
-app.post('/api/maintenance/:id/create', checkAuth, upload.array('imageURL', 10), maintenanceController.createMaintenanceRequest);
+app.post('/api/maintenance/:id/create', checkAuth, upload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
 
 // Start server
 app.listen(PORT, () => {

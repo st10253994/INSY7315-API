@@ -17,26 +17,44 @@ function toObjectId(id) {
 
 // CREATE
 async function createBooking(id, data) {
-  const db = client.db('RentWise');
-  const bookings = db.collection('Bookings');
+  try{
+    const db = client.db('RentWise');
+    const bookingsCollection = db.collection('Bookings');
 
-  const {startDate, endDate, guestAmount } = data;
+    const { checkInDate, CheckOutDate, numberOfGuests, supportDocuments = [] } = data;
 
-  if (!startDate || !endDate || !guestAmount) {
-    throw new Error('Missing required booking fields');
+    if (!checkInDate || !CheckOutDate || !numberOfGuests) {
+      throw new Error('Check-in date, check-out date, and number of guests are required');
+    }
+    //if you give a single document, convert to array
+    if (typeof supportDocuments === 'string') {
+      data.supportDocuments = [supportDocuments];
+    }
+    //if supportDocuments is not an array, throw error
+    if (!Array.isArray(supportDocuments)) {
+      throw new Error('supportDocuments must be an array of strings');
+    }
+    // Ensure listing ID is valid
+    const listingObjectId = toObjectId(id);
+    const listing = await db.collection('Listings').findOne({ _id: listingObjectId });
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    const newBooking = {
+        listing: ObjectId(id),
+        checkInDate,
+        CheckOutDate,
+        numberOfGuests,
+        supportDocuments,
+        status: 'Pending',
+        createdAt: new Date()
+    };
+    const result = await bookingsCollection.insertOne(newBooking);
+    return { message: 'Booking created', bookingID: result.insertedId };
   }
-
-  const newBooking = {
-    listingId: toObjectId(id),
-    guestAmount: data.guestAmount,
-    startDate: data.startDate,
-    endDate: data.endDate,
-    createdAt: new Date(),
-    status: 'pending'
-  };
-
-  const result = await bookings.insertOne(newBooking);
-  return { _id: result.insertedId, ...newBooking };
+  catch (error) {
+    throw new Error('Error creating booking: ' + error.message);
+  }
 }
 
 // READ all

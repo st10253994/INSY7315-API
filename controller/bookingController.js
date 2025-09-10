@@ -11,11 +11,23 @@ exports.getAllBookings = async (req, res) => {
 
 exports.createBooking = async (req, res) => {
   try {
-    const newBooking = await bookingService.createBooking(req.params.id, req.body);
-    res.status(201).json(newBooking);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }};
+          const files = req.files || [];
+          const id = req.params.id; // Get listing ID from URL parameters
+      
+          if (!files.length) {
+            console.log("No files uploaded");
+          }
+      
+          const supportDocuments = files.map(file => file.path);
+          const data = { ...req.body, supportDocuments: supportDocuments };
+      
+          const newBooking = await bookingService.createBooking(id, data);
+          res.status(201).json(newBooking);
+        } catch (error) {
+          console.error(error);
+          res.status(400).json({ error: error.message });
+        }
+};
 
 exports.getBookingById = async (req, res) => {
   try {
