@@ -23,26 +23,17 @@ async function createListing(id ,data) {
     if (!title || !address || !description || !price) {
       throw new Error('Title, address, description, and price are required');
     }
-  
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice)) {
       throw new Error('Price must be a valid number');
     }
-
-    //if you give a single amenity, convert to array
-    if (typeof amenities === 'string') {
-      data.amenities = [amenities];
-    }
-
+    
     //if amenities is not an array, throw error
     if (!Array.isArray(amenities)) {
       throw new Error('Amenities must be an array of strings');
     }
 
-    
-
     // Ensure landlord ID is valid
-
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
 
@@ -56,7 +47,6 @@ async function createListing(id ,data) {
       email : user.email,
     }
     
-
     const newListing = {
       title,
       address,
@@ -68,10 +58,10 @@ async function createListing(id ,data) {
       landlordInfo,
       createdAt: new Date()
     };
-
     const result = await listingsCollection.insertOne(newListing);
     return { message: 'Listing created', listingId: result.insertedId };
-  } catch (error) {
+  } 
+  catch (error) {
     throw new Error(`Error creating listing: ${error.message}`);
   }
 }
