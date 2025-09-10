@@ -13,7 +13,7 @@ exports.createMaintenanceRequest = async (req, res) => {
         const data = { ...req.body, documentURL: documentURLs };
     
         const maintenanceRequest = await maintenance.createMaintenanceRequest(id, data);
-        res.status(201).json(newMaintenanceRequest);
+        res.status(201).json(maintenanceRequest);
       } catch (error) {
         console.error(error);
         res.status(400).json({ error: error.message });

@@ -18,11 +18,11 @@ function toObjectId(id) {
 async function createMaintenanceRequest(listingId, data) {
     try{
         const db = client.db('RentWise');
-        const maintenanceCollection = db.collection('MaintenanceRequests');
+        const maintenanceCollection = db.collection('Maintenance-Requests');
 
-        const { issueTitle, issueDescription, location, priority = [], documentURL = [] } = data;
+        const { issueTitle, issueDescription, location, priority, documentURL = [] } = data;
 
-        if (!issueTitle || !issueDescription || !location) {
+        if (!issueTitle || !issueDescription || !location || !priority) {
         throw new Error('Issue description and preferred date are required');
         }
         //if you give a single image, convert to array

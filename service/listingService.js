@@ -16,22 +16,27 @@ function toObjectId(id) {
 }
 
 // CREATE
-async function createListing(id ,data) {
+async function createListing(id, data) {
   try {
-    const { title, address, description, amenities = [], imagesURL = [], price, isFavourited} = data;
+    const { title, address, description, imagesURL = [], price, isFavourited } = data;
+    let amenities = data.amenities || [];
 
     if (!title || !address || !description || !price) {
       throw new Error('Title, address, description, and price are required');
     }
+
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice)) {
       throw new Error('Price must be a valid number');
     }
-    
-    //if amenities is not an array, throw error
+
+    // Normalize amenities: always make it an array
     if (!Array.isArray(amenities)) {
-      throw new Error('Amenities must be an array of strings');
+      amenities = amenities ? [amenities] : [];
     }
+
+    // Sanitize amenities and trim, remove empty strings and duplicates
+    amenities = [...new Set(amenities.map(a => a.trim()).filter(a => a !== ''))];
 
     // Ensure landlord ID is valid
     const db = client.db('RentWise');
@@ -43,10 +48,10 @@ async function createListing(id ,data) {
       landlord: user._id,
       firstName: user.firstName,
       surname: user.surname,
-      phone : user.phone,
-      email : user.email,
-    }
-    
+      phone: user.phone,
+      email: user.email,
+    };
+
     const newListing = {
       title,
       address,
@@ -58,13 +63,14 @@ async function createListing(id ,data) {
       landlordInfo,
       createdAt: new Date()
     };
+
     const result = await listingsCollection.insertOne(newListing);
     return { message: 'Listing created', listingId: result.insertedId };
-  } 
-  catch (error) {
+  } catch (error) {
     throw new Error(`Error creating listing: ${error.message}`);
   }
 }
+
 
 // READ all
 async function getAllListings() {
