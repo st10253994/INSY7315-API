@@ -25,6 +25,7 @@ const reviewController = require('./controller/reviewController');
 const userController = require('./controller/userController');
 const notificationController = require('./controller/notificationController');
 const favouriteController = require('./controller/favouriteController');
+const maintenanceController = require('./controller/maintenanceController');
 
 // Booking Routes
 app.get('/api/bookings', checkAuth, bookingController.getAllBookings);
@@ -57,6 +58,9 @@ app.post('/api/users/:id/profile', userController.postUserProfile);
 // Notification Routes
 app.get('/api/notifications', checkAuth, notificationController.getAllNotifications);
 app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
+
+// Maintenance Routes
+app.post('/api/maintenance/:id/create', checkAuth, upload.array('imageURL', 10), maintenanceController.createMaintenanceRequest);
 
 // Start server
 app.listen(PORT, () => {
