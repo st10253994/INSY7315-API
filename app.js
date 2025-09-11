@@ -60,7 +60,8 @@ app.get('/api/notifications', checkAuth, notificationController.getAllNotificati
 app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
 
 // Maintenance Routes
-app.post('/api/maintenance/:id/create', checkAuth, upload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
+app.post('/api/:id/maintenance/request/create', checkAuth, upload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
+app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaitenanceRequestForUserId);
 
 // Start server
 app.listen(PORT, () => {

@@ -27,10 +27,13 @@ async function favouriteListing(userID, listingID) {
       throw new Error("Listing not found");
     }
 
-    // Check if already favourited
-    const existingFavourite = await favouritesCollection.findOne({ userId: toObjectId(userID), listingId: toObjectId(listingID) });
+    // Check if already favourited - use consistent field name
+    const existingFavourite = await favouritesCollection.findOne({ 
+      userId: toObjectId(userID), 
+      "listingDetail.listingID": toObjectId(listingID) 
+    });
     if (existingFavourite) {
-      return { message: "Listing already favourited" };
+      throw new Error("Favourite already exists");
     }
 
     const listingInfo = await listingDetails.getListingById(listingID);
@@ -43,9 +46,9 @@ async function favouriteListing(userID, listingID) {
       amenities: listingInfo.amenities,
       images: listingInfo.imagesURL,
       price: listingInfo.parsedPrice,
-      isFavourited: listingInfo.isFavourited = true,
+      isFavourited: true, // Fixed assignment
       landlordInfo: listingInfo.landlordInfo,
-      createdAt: listingInfo.createdAt = new Date()
+      createdAt: new Date() // Fixed assignment
     };
 
     // Add to favourites
