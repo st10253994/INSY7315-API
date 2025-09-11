@@ -14,13 +14,13 @@ async function getAllNotifications() {
 async function createNotification(data) {
     const db = client.db('RentWise');
     const notifications = db.collection('System-Notifications');
-    const { title, message } = data;
+    const { title, notificationMessage } = data;
     if (!title || !message) {
         throw new Error("Missing required fields");
     }
     const newNotification = {
         title,
-        message,
+        notificationMessage,
         read: false,
         time: new Date().toISOString() 
     };
