@@ -35,7 +35,7 @@ async function createNotification(data) {
     return {
         _id: notificationId,
         title: newNotification.title,
-        message: newNotification.message, 
+        notificationMessage: newNotification.message, 
         isRead: newNotification.read,
         createdAt: newNotification.time,
         message: "Notification inserted Successfully"
