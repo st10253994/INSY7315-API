@@ -35,7 +35,7 @@ async function favouriteListing(userID, listingID) {
 
     const listingInfo = await listingDetails.getListingById(listingID);
 
-     listingDetail = {
+    const listingDetail = {
       listingID: listingInfo._id,
       title: listingInfo.title,
       address: listingInfo.address,
