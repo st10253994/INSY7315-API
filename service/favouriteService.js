@@ -67,8 +67,8 @@ async function getFavouriteListings(userID) {
     const db = client.db('RentWise');
     const favouriteCollection = db.collection('Favourites');
 
-    const result = await favouriteCollection.find({userId: toObjectId(userID)});
-    if(result == null){
+    const result = await favouriteCollection.find({userId: toObjectId(userID)}).toArray();
+    if(result.length === 0){
       throw new Error("There are no favourite listings");
     }
     return {result, message: "Favourite listings loaded"};
