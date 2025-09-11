@@ -67,28 +67,8 @@ async function getFavouriteListings(userID) {
     const db = client.db('RentWise');
     const favouriteCollection = db.collection('Favourites');
 
-    const result = await favouriteCollection
-      .find({ userId: toObjectId(userID) })
-      .toArray();
-
-    if (result.length === 0) {
-      throw new Error("There are no favourite listings");
-    }
-
-    // Convert ObjectId fields and dates to strings
-    const cleanResult = result.map(item => ({
-      ...item,
-      _id: item._id.toString(),
-      userId: item.userId.toString(),
-      listingDetail: {
-        ...item.listingDetail,
-        listingID: item.listingDetail?.listingID?.toString()
-      },
-      createdAt: item.createdAt?.toISOString(),
-      favouritedAt: item.favouritedAt?.toISOString()
-    }));
-
-    return { result: cleanResult, message: "Favourite listings loaded" };
+    const result = favouriteCollection.find({userID}).toArray();
+    return result;
   } catch (error) {
     throw new Error(`Error pulling favourite listings: ${error.message}`);
   }
