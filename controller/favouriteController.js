@@ -2,12 +2,12 @@ const favouriteService = require('../service/favouriteService');
 
 exports.favouriteListing = async (req, res) => {
     try {
-        const result = await favouriteService.favouriteListing(req.params.id);
+        const result = await favouriteService.favouriteListing(req.params.userID, req.params.listingID);
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
+}; 
 
 exports.favouriteListings = async (req, res) => {
     try {
