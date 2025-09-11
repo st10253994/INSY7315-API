@@ -22,7 +22,7 @@ async function createNotification(data) {
         title,
         message,
         read: false,
-        time: new Date()
+        time: new Date().toISOString() 
     };
     const result = await notifications.insertOne(newNotification)
 
