@@ -9,7 +9,6 @@ async function loginUser(data) {
 
     if (!email || !password) {
         throw new Error("Email and password are required");
-        console.log("Email and password are required");
     }
 
     try {
@@ -20,14 +19,12 @@ async function loginUser(data) {
         const user = await systemUsers.findOne({ email });
         if (!user) {
             throw new Error("Invalid email or password");
-            console.log("Invalid email or password");
         }
 
         // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             throw new Error("Invalid email or password");
-            console.log("Invalid email or password");
         }
 
         // Generate JWT token
@@ -44,7 +41,6 @@ async function loginUser(data) {
             email: user.email, 
             token: token
         };
-        console.log(`Login was successful: ${token}`);
     } catch (error) {
         throw new Error(`Error logging in: ${error.message}`);
     }

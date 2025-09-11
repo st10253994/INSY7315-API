@@ -9,7 +9,7 @@ const checkAuth = (req, res, next) => {
         next();
     } catch (err) {
         console.error(err);
-        res.status(401).json({ message: "You're not Authorized." });
+        res.status(401).json({ message: "Your session is expired. Please login again." });
     }
 };
 

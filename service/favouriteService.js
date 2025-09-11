@@ -23,16 +23,9 @@ async function favouriteListing(id) {
     const listing = await listingCollection.findOne({ _id: toObjectId(id) });
     if (!listing) throw new Error("Listing not found");
 
-    const favouriteListing = {
-      title: listing.title,
-      description: listing.description,
-      price: listing.price,
-      images: listing.images
-    };
-
     await favouritesCollection.updateOne(
       { listingId: toObjectId(id) },
-      { $set: { favouriteListing, favouritedAt: new Date() } },
+      { $set: { listing, favouritedAt: new Date() } },
       { upsert: true }
     );
     return { message: "Listing favourited" };
