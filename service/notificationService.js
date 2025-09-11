@@ -15,7 +15,7 @@ async function createNotification(data) {
     const db = client.db('RentWise');
     const notifications = db.collection('System-Notifications');
     const { title, notificationMessage } = data;
-    if (!title || !message) {
+    if (!title || !notificationMessage) {
         throw new Error("Missing required fields");
     }
     const newNotification = {
@@ -35,7 +35,7 @@ async function createNotification(data) {
     return {
         _id: notificationId,
         title: newNotification.title,
-        notificationMessage: newNotification.message, 
+        notificationMessage: newNotification.notificationMessage, 
         isRead: newNotification.read,
         createdAt: newNotification.time,
         message: "Notification inserted Successfully"
