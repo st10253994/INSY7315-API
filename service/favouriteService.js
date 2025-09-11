@@ -62,14 +62,18 @@ async function favouriteListing(userID, listingID) {
   }
 }
 
-async function favouriteListings() {
-  try {
+async function getFavouriteListings(userID) {
+  try{
     const db = client.db('RentWise');
-    const favouritesCollection = db.collection('Favourites');
-    const listings = await favouritesCollection.find({}).toArray();
-    return listings;
-  } catch (error) {
-    throw new Error(`Error fetching favourited listings: ${error.message}`);
+    const favouriteCollection = db.collection('Favourites');
+
+    const result = await favouriteCollection.find({userID: toObjectId(userID)});
+    if(result == null){
+      throw new Error("There are no favourite listings");
+    }
+    return {result, message: "Favourite listings loaded"};
+  }catch (error){
+    throw new Error(`Error pulling favourite listings: ${error.message}`)
   }
 }
 
@@ -89,6 +93,6 @@ async function unfavouriteListing(id) {
 
 module.exports = {
   favouriteListing,
-  favouriteListings,
+  getFavouriteListings,
   unfavouriteListing
 };

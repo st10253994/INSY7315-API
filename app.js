@@ -42,7 +42,7 @@ app.delete('/api/listings/:id/delete', checkAuth, listingController.deleteListin
 
 // Favourite Routes
 app.post('/api/:userID/:listingID/favourite', checkAuth, favouriteController.favouriteListing);
-app.get('/api/favourites', checkAuth, favouriteController.favouriteListings);
+app.get('/api/:userID/favourites', checkAuth, favouriteController.getFavouriteListings);
 app.delete('/api/:id/unfavourite', checkAuth, favouriteController.unfavouriteListing);
 
 // Review Routes
