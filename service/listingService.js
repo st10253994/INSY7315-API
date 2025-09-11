@@ -71,7 +71,6 @@ async function createListing(id, data) {
   }
 }
 
-
 // READ all
 async function getAllListings() {
   try {
