@@ -27,3 +27,12 @@ exports.unfavouriteListing = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getFavouriteByListingId = async (req, res) => {
+    try {
+        const favourite = await favouriteService.getFavouriteByListingId(req.params.listingID);
+        res.status(200).json(favourite);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
