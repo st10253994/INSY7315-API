@@ -29,9 +29,11 @@ exports.createBooking = async (req, res) => {
       ...req.body, 
       supportDocuments 
     };
-
+      console.log("request body: ", req.body);
+      console.log("request file: ", req.files);
+      console.log("request data:", data);
     const newBooking = await bookingService.createBooking(userID, listingID, data);
-
+      
     res.status(201).json(newBooking);
   } catch (error) {
     console.error(error);
