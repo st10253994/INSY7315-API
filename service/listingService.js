@@ -88,7 +88,7 @@ async function getListingById(id) {
   try {
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
-    const listing = await listingsCollection.findOne({ _id: toObjectId(id) });
+    const listing = await listingsCollection.findOne({ _id: toObjectId(id) }).toArray();
     if (!listing) {
     throw new Error("Listing not found");
     }
