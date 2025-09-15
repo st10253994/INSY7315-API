@@ -22,7 +22,7 @@ async function createBooking(userID, listingID, data) {
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
 
-    const { checkInDate, checkOutDate, numberOfGuests, supportDocuments = [] } = data;
+    const { checkInDate, checkOutDate, numberOfGuests, supportDocuments = [], totalPrice } = data;
 
     if (!checkInDate || !checkOutDate || !numberOfGuests) {
       throw new Error('Check-in date, check-out date, and number of guests are required');
@@ -62,6 +62,7 @@ async function createBooking(userID, listingID, data) {
         checkOutDate,
         numberOfGuests,
         supportDocuments,
+        totalPrice,
         status: 'Pending',
         createdAt: new Date()
     };
