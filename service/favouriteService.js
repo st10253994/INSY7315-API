@@ -92,11 +92,11 @@ async function unfavouriteListing(userID, listingID) {
     const result = await favouritesCollection.deleteOne({userId: toObjectId(userID), "listingDetail.listingID": toObjectId(listingID)});
 
     //check if the deletecount is null
-    if(result.deletedCount === null){
+    if(result.deletedCount === 0){
       throw new Error("there are not current favourites to delete");
+    }else{
+      return { message: "Listing unfavourited" };
     }
-
-    return { message: "Listing unfavourited" };
   } catch (error) {
     throw new Error(`Error unfavouriting listing: ${error.message}`);
   }
