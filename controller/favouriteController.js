@@ -20,7 +20,7 @@ exports.getFavouriteListings = async (req, res) => {
 
 exports.unfavouriteListing = async (req, res) => {
     try {
-        const result = await favouriteService.unfavouriteListing(req.params.id);
+        const result = await favouriteService.unfavouriteListing(req.params.userID, req.params.listingID);
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });

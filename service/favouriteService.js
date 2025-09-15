@@ -84,14 +84,17 @@ async function getFavouriteListings(userID) {
   }
 }
 
-async function unfavouriteListing(id) {
+async function unfavouriteListing(userID, listingID) {
   try {
     const db = client.db('RentWise');
     const favouritesCollection = db.collection('Favourites');
-    const result = await favouritesCollection.deleteOne({ listingId: toObjectId(id) });
-    if (result.deletedCount === 0) {
-      throw new Error("Listing not found in favourites");
+    
+    const result = await favouritesCollection.deleteOne({userId: toObjectId(userID), listingId: toObjectId(listingID)});
+
+    if(result.deletedCount === 0){
+      throw new Error("There are no current favourites to delete!");
     }
+
     return { message: "Listing unfavourited" };
   } catch (error) {
     throw new Error(`Error unfavouriting listing: ${error.message}`);
