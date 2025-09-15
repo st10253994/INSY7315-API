@@ -106,7 +106,7 @@ async function getFavouriteByListingId(listingID) {
   try {
     const db = client.db('RentWise');
     const favouritesCollection = db.collection('Favourites');
-    const favourite = await favouritesCollection.findOne({ "listingDetail.listingID": toObjectId(listingID) }).toArray();
+    const favourite = await favouritesCollection.findOne({ "listingDetail.listingID": toObjectId(listingID) });
     return favourite;
   } catch (error) {
     throw new Error(`Error retrieving favourite by listing ID: ${error.message}`);
