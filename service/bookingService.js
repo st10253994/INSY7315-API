@@ -1,6 +1,7 @@
 // service/bookingService.js
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
+const listingDetails = require('./listingService');
 
 function toObjectId(id) {
   // If already an ObjectId, return it
@@ -16,7 +17,7 @@ function toObjectId(id) {
 }
 
 // CREATE
-async function createBooking(id, data) {
+async function createBooking(userID, listingID, data) {
   try{
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
@@ -35,13 +36,28 @@ async function createBooking(id, data) {
       throw new Error('supportDocuments must be an array of strings');
     }
     // Ensure listing ID is valid
-    const listingObjectId = toObjectId(id);
+    const listingObjectId = toObjectId(listingID);
     const listing = await db.collection('Listings').findOne({ _id: listingObjectId });
     if (!listing) {
       throw new Error('Listing not found');
     }
+
+    const listingInfo = await listingDetails.getListingById(listingID);
+    
+        const listingDetail = {
+          listingID: listingInfo._id,
+          title: listingInfo.title,
+          address: listingInfo.address,
+          description: listingInfo.description,
+          amenities: listingInfo.amenities,
+          images: listingInfo.imagesURL,
+          price: listingInfo.parsedPrice,
+          isFavourited: true, // Fixed assignment
+          landlordInfo: listingInfo.landlordInfo,
+          createdAt: new Date() // Fixed assignment
+        };
+
     const newBooking = {
-        listing: ObjectId(id),
         checkInDate,
         CheckOutDate,
         numberOfGuests,
@@ -49,7 +65,12 @@ async function createBooking(id, data) {
         status: 'Pending',
         createdAt: new Date()
     };
-    const result = await bookingsCollection.insertOne(newBooking);
+
+    const result = await bookingsCollection.insertOne({
+      userId: toObjectId(userID),
+      listingDetail,
+      newBooking
+    });
     return { message: 'Booking created', bookingID: result.insertedId };
   }
   catch (error) {

@@ -18,6 +18,26 @@ const storage = new CloudinaryStorage({
   },
 });
 
+// Configure Multer storage for Cloudinary
+const dynamicStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const isImage = file.mimetype.startsWith("image/");
+    return {
+      folder: isImage ? "BookingImages" : "bookingFiles",
+      resource_type: isImage ? "image" : "raw",
+      allowed_formats: isImage 
+        ? ["jpg", "png", "jpeg"]
+        : ["pdf", "docx", "doc"],
+    };
+  },
+});
+const uploadFiles = require('multer')({ storage: dynamicStorage });
+
 const upload = require('multer')({ storage });
 
-module.exports = { cloudinary, upload };
+module.exports = {
+   cloudinary, 
+   upload,
+   uploadFiles
+};

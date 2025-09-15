@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth')
-const { upload } = require('./database/cloudinary');
+const { upload, uploadFiles } = require('./database/cloudinary');
 const cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
@@ -29,7 +29,7 @@ const maintenanceController = require('./controller/maintenanceController');
 
 // Booking Routes
 app.get('/api/bookings', checkAuth, bookingController.getAllBookings);
-app.post('/api/bookings/:id/create', checkAuth, upload.array('supportDocuments', 10),  bookingController.createBooking);
+app.post('/api/bookings/:userID/:listingID/create', checkAuth, uploadFiles.array('supportDocuments', 10),  bookingController.createBooking);
 app.get('/api/bookings/:id', checkAuth, bookingController.getBookingById);
 app.delete('/api/bookings/:id/delete', checkAuth, bookingController.deleteBooking);
 app.put('/api/bookings/:id/update', checkAuth, bookingController.updateBooking);
