@@ -89,7 +89,7 @@ async function unfavouriteListing(userID, listingID) {
     const db = client.db('RentWise');
     const favouritesCollection = db.collection('Favourites');
     
-    const result = await favouritesCollection.deleteOne({userId: toObjectId(userID), listingId: toObjectId(listingID)});
+    const result = await favouritesCollection.deleteOne({userId: toObjectId(userID), "listingDetail.listingID": toObjectId(listingID)});
 
     //check if the deletecount is null
     if(result.deletedCount === null){
