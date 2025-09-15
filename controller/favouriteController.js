@@ -22,7 +22,7 @@ exports.unfavouriteListing = async (req, res) => {
     try {
         const result = await favouriteService.unfavouriteListing(req.params.userID, req.params.listingID);
         res.status(200).json(result);
-        console.log(res.status(200));
+        console.log(`unfavourited ${res.statusCode}`);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
