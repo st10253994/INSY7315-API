@@ -11,7 +11,7 @@ exports.createMaintenanceRequest = async (req, res) => {
         }
     
         const documentURLs = files.map(file => file.path);
-        const data = { ...req.body, documentURL: documentURLs };
+        const data = { ...req.body, documentsURL: documentURLs };
     
         const maintenanceRequest = await maintenance.createMaintenanceRequest(userID, listingID, data);
         res.status(201).json(maintenanceRequest);

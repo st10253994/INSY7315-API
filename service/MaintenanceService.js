@@ -20,10 +20,11 @@ function toObjectId(id) {
 async function createMaintenanceRequest(userID, listingID, data) {
     try{
         const db = client.db('RentWise');
-        const maintenanceCollection = db.collection('maintenanceRequest');
+        const maintenanceCollection = db.collection('Maintenance-Requests');
         const listingCollection = db.collection('Listings')
+        const bookingCollection = db.collection('Bookings');
 
-        const {issue, description, priority, documentURL = []} = data;
+        const {issue, description, priority, documentsURL = []} = data;
 
         if(!issue || !description || !priority){
             throw new Error ('All data fields have to be filled in');
@@ -47,7 +48,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
               landlordInfo: listingInfo.landlordInfo
             };
 
-            const booking = await bookingService.getBookingById({userId: toObjectId(userID)});
+            const booking = await bookingCollection.findOne({ userId: toObjectId(userID) });
 
             if(!booking){
                 throw new Error("There are no bookings to log the maintenance Request for");
@@ -57,7 +58,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
                 issue,
                 description,
                 priority,
-                documentURL,
+                documentsURL,
                 createdAt: new Date()
             };
 
@@ -69,7 +70,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         });
         return { message: "New Maintenance Request has been submitted", maintenanceID: result.insertedId };
     }catch(error){
-        throw new Error("Error creating Maintenance Request" + error.message);
+        throw new Error("Error creating Maintenance Request " + error.message);
     }
 }
 
