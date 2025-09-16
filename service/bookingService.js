@@ -24,6 +24,12 @@ async function createBooking(userID, listingID, data) {
 
     const { checkInDate, checkOutDate, numberOfGuests, supportDocuments = [], totalPrice } = data;
 
+    //Cast total price to a float and validate
+    const parsedPrice = parseFloat(totalPrice);
+    if (isNaN(parsedPrice)) {
+      throw new Error('Total Price must be a valid number');
+    }
+
     if (!checkInDate || !checkOutDate || !numberOfGuests) {
       throw new Error('Check-in date, check-out date, and number of guests are required');
     }
@@ -62,7 +68,7 @@ async function createBooking(userID, listingID, data) {
         checkOutDate,
         numberOfGuests,
         supportDocuments,
-        totalPrice,
+        totalPrice: parsedPrice,
         status: 'Pending',
         createdAt: new Date()
     };
