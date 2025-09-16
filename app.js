@@ -29,6 +29,7 @@ const userController = require('./controller/userController');
 const notificationController = require('./controller/notificationController');
 const favouriteController = require('./controller/favouriteController');
 const maintenanceController = require('./controller/maintenanceController');
+const googleController = require('./controller/GoogleController');
 
 // Booking Routes
 app.get('/api/bookings', checkAuth, bookingController.getAllBookings);
@@ -68,8 +69,7 @@ app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, mainte
 app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaintenanceRequestForUserId);
 
 //GoogleAuth Routes
-app.get('/auth/google', (req, res, next) => authController.googleAuth(req, res, next));
-app.get('/auth/google/callback', (req, res, next) => authController.googleCallback(req, res, next));
+app.post('/auth/google/mobile', (req, res) => googleController.googleMobileLogin(req, res));
 
 // Start server
 app.listen(PORT, () => {
