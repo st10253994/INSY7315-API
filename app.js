@@ -8,7 +8,7 @@ const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // Parse JSON bodies
-app.use(cors())
+app.use(cors()) // Enable CORS for all routes
 
 // Simple test route
 app.get('/', (req, res) => {

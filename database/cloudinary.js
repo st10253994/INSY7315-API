@@ -1,3 +1,5 @@
+// https://youtu.be/3Gj_mL9JJ6k?si=QhX71a3Fdf7SNxpr (tutorial link)
+
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
@@ -18,7 +20,7 @@ const storage = new CloudinaryStorage({
   },
 });
 
-// Configure Multer storage for Cloudinary
+// Configure dynamic Multer storage for Cloudinary
 const dynamicStorage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
