@@ -4,6 +4,9 @@ const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth')
 const { upload, uploadFiles, maintenanceUpload } = require('./database/cloudinary');
 const cors = require('cors');
+const authController = require('./controller/GoogleController');
+const initPassport = require('./service/passportService');
+const passport = require('passport');
 
 const PORT = process.env.PORT || 3000;
 
@@ -63,6 +66,10 @@ app.post('/api/notifications/create', checkAuth, notificationController.createNo
 // Maintenance Routes
 app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, maintenanceUpload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
 app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaintenanceRequestForUserId);
+
+//GoogleAuth Routes
+app.get('/auth/google', (req, res, next) => authController.googleAuth(req, res, next));
+app.get('/auth/google/callback', (req, res, next) => authController.googleCallback(req, res, next));
 
 // Start server
 app.listen(PORT, () => {
