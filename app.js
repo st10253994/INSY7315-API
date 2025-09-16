@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth')
-const { upload, uploadFiles } = require('./database/cloudinary');
+const { upload, uploadFiles, maintenanceUpload } = require('./database/cloudinary');
 const cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
@@ -61,8 +61,8 @@ app.get('/api/notifications', checkAuth, notificationController.getAllNotificati
 app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
 
 // Maintenance Routes
-app.post('/api/:id/maintenance/request/create', checkAuth, upload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
-app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaitenanceRequestForUserId);
+app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, maintenanceUpload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
+app.get('/api/:userID/:listingID/maintenance/request', checkAuth, maintenanceController.getMaitenanceRequestForUserId);
 
 // Start server
 app.listen(PORT, () => {
