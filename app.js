@@ -4,9 +4,6 @@ const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth')
 const { upload, uploadFiles, maintenanceUpload } = require('./database/cloudinary');
 const cors = require('cors');
-const authController = require('./controller/GoogleController');
-const initPassport = require('./service/passportService');
-const passport = require('passport');
 
 const PORT = process.env.PORT || 3000;
 
