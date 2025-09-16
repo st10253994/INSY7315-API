@@ -34,12 +34,24 @@ const dynamicStorage = new CloudinaryStorage({
     };
   },
 });
-const uploadFiles = require('multer')({ storage: dynamicStorage });
 
+// configure cloudinary storage
+const maintenanceStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'maintenance', // folder in Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 800, height: 800, crop: "limit" }], // optional
+  },
+});
+
+const uploadFiles = require('multer')({ storage: dynamicStorage });
+const maintenanceUpload = require('multer')({ maintenanceStorage })
 const upload = require('multer')({ storage });
 
 module.exports = {
    cloudinary, 
    upload,
-   uploadFiles
+   uploadFiles,
+   maintenanceUpload
 };

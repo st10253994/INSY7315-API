@@ -1,5 +1,7 @@
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb'); 
+const listingDetails = require('./listingService');
+const bookingService = require('./bookingService');
 
 function toObjectId(id) {
   // If already an ObjectId, return it
@@ -15,44 +17,59 @@ function toObjectId(id) {
 }
 
 //create with listing ID
-async function createMaintenanceRequest(listingId, data) {
+async function createMaintenanceRequest(userID, listingID, data) {
     try{
         const db = client.db('RentWise');
-        const maintenanceCollection = db.collection('Maintenance-Requests');
+        const maintenanceCollection = db.collection('maintenanceRequest');
+        const listingCollection = db.collection('Listings')
 
-        const { issueTitle, issueDescription, location, priority, documentURL = [] } = data;
+        const {issue, description, priority, documentURL = []} = data;
 
-        if (!issueTitle || !issueDescription || !location || !priority) {
-        throw new Error('Issue description and preferred date are required');
+        if(!issue || !description || !priority){
+            throw new Error ('All data fields have to be filled in');
         }
-        //if you give a single image, convert to array
-        if (typeof documentURL === 'string') {
-        data.documentURL = [documentURL];
-        }
-        //if imagesURL is not an array, throw error
-        if (!Array.isArray(documentURL)) {
-        throw new Error('imagesURL must be an array of strings');
-        }
-        // Ensure listing ID is valid
-        const listingObjectId = toObjectId(listingId);
-        const listing = await db.collection('Listings').findOne({ _id: listingObjectId });
+
+        // Check if listing exists
+        const listing = await listingCollection.findOne({ _id: toObjectId(listingID) });
         if (!listing) {
-        throw new Error('Listing not found');
+        throw new Error("Listing not found");
         }
+        const listingInfo = await listingDetails.getListingById(listingID);
+        
+            const listingDetail = {
+              listingID: listingInfo._id,
+              title: listingInfo.title,
+              address: listingInfo.address,
+              description: listingInfo.description,
+              amenities: listingInfo.amenities,
+              images: listingInfo.imagesURL,
+              price: listingInfo.parsedPrice,
+              landlordInfo: listingInfo.landlordInfo
+            };
 
-        const newRequest = {
-            listing: ObjectId(listingId),
-            issueTitle,
-            issueDescription,
-            location,
-            priority,
-            documentURL,
-            status: 'Pending',
-        };
-        const result = await maintenanceCollection.insertOne(newRequest);
-        return { message: 'Maintenance Request submitted', maintenanceID: result.insertedId };
-    } catch (error) {
-        throw new Error('Error creating maintenance request: ' + error.message);
+            const booking = await bookingService.getBookingById({userId: toObjectId(userID)});
+
+            if(!booking){
+                throw new Error("There are no bookings to log the maintenance Request for");
+            }
+
+            const newMaintenanceRequest = {
+                issue,
+                description,
+                priority,
+                documentURL,
+                createdAt: new Date()
+            };
+
+        const result = await maintenanceCollection.insertOne({
+            userId: toObjectId(userID),
+            listingDetail,
+            bookingId: toObjectId(booking._id),
+            newMaintenanceRequest
+        });
+        return { message: "New Maintenance Request has been submitted", maintenanceID: result.insertedId };
+    }catch(error){
+        throw new Error("Error creating Maintenance Request" + error.message);
     }
 }
 
