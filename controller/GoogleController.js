@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
-const authService = require('../service/googleSignInService');
+const { googleSignInService } = require('../service/googleSignInService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const authService = new googleSignInService();
 
 // ✅ Controller functions
 exports.googleMobileLogin = async (req, res) => {
@@ -52,7 +53,7 @@ exports.googleMobileLogin = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Google Mobile Login Error:', err);
+    console.error('Google Mobile Login Error:', err.stack || err);
     res.status(401).json({ error: 'Invalid Google token' });
   }
 };

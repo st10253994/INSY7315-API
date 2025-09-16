@@ -11,7 +11,7 @@ function toObjectId(id) {
 
 class googleSignInService {
   constructor() {
-    this.collection = client.db().collection('System-Users');
+    this.collection = client.db('RentWise').collection('System-Users');
   }
 
   // 🔍 Find user by Google ID
