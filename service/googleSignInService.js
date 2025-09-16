@@ -9,7 +9,7 @@ function toObjectId(id) {
   throw new Error("Invalid ID format");
 }
 
-class GoogleSigninService {
+class googleSignInService {
   constructor() {
     this.collection = client.db().collection('System-Users');
   }
@@ -44,4 +44,6 @@ class GoogleSigninService {
   }
 }
 
-module.exports = new GoogleSigninService();
+module.exports = {
+    googleSignInService
+};
