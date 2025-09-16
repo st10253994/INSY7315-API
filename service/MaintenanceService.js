@@ -48,10 +48,10 @@ async function createMaintenanceRequest(userID, listingID, data) {
               landlordInfo: listingInfo.landlordInfo
             };
 
-            const booking = await bookingCollection.findOne({ userId: toObjectId(userID) });
+            const booking = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': listing._id, status: 'Accepted' });
 
             if(!booking){
-                throw new Error("There are no bookings to log the maintenance Request for");
+                throw new Error("There are no active bookings with the property to log the maintenance Request for");
             }
 
             const newMaintenanceRequest = {
