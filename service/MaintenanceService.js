@@ -74,6 +74,18 @@ async function createMaintenanceRequest(userID, listingID, data) {
     }
 }
 
+async function getMaintenanceRequestForUserId(userID, listingID) {
+    try {
+        const db = client.db('RentWise');
+        const maintenanceCollection = db.collection('Maintenance-Requests');
+        const requests = await maintenanceCollection.find({ userId: toObjectId(userID) }).toArray();
+        return requests;
+    } catch (error) {
+        throw new Error("Error fetching Maintenance Requests: " + error.message);
+    }
+}
+
 module.exports = {
-    createMaintenanceRequest
+    createMaintenanceRequest,
+    getMaintenanceRequestForUserId
 };

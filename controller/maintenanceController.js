@@ -21,9 +21,9 @@ exports.createMaintenanceRequest = async (req, res) => {
       }
 };
 
-exports.getMaitenanceRequestForUserId = async (req, res) => {
+exports.getMaintenanceRequestForUserId = async (req, res) => {
   try {
-          const result = await maintenance.getMaitenanceRequestForUserId(req.params.userID, req.params.listingID);
+          const result = await maintenance.getMaintenanceRequestForUserId(req.params.userID);
           res.status(200).json(result);
       } catch (error) {
           res.status(500).json({ error: error.message });
