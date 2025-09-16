@@ -20,16 +20,16 @@ exports.googleMobileLogin = async (req, res) => {
     const payload = ticket.getPayload();
 
     // 2. Find or create user
-    let user = await authService.findUserByGoogleId(payload.sub);
+    let user = await authService.googleSignInService(payload.sub);
     if (!user) {
-      user = await authService.createUser({
+      user = await authService.googleSignInService({
         googleId: payload.sub,
         name: payload.name,
         email: payload.email,
         photo: payload.picture,
       });
     } else {
-      await authService.updateLastLogin(user._id);
+      await authService.googleSignInService(user._id);
     }
 
     // 3. Create JWT
