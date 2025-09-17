@@ -11,7 +11,6 @@ exports.googleMobileLogin = async (req, res) => {
     const { idToken } = req.body;
     if (!idToken) {
       return res.status(400).json({ error: 'Missing idToken' });
-      console.log(res.statusCode);
     }
 
     // 1. Verify Google ID Token
@@ -30,10 +29,7 @@ exports.googleMobileLogin = async (req, res) => {
         email: payload.email,
         photo: payload.picture,
       });
-    } else {
-      await authService.updateLastLogin(user._id);
     }
-
     // 3. Create JWT
     const token = jwt.sign(
       { id: user._id, email: user.email },
