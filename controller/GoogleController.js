@@ -11,6 +11,7 @@ exports.googleMobileLogin = async (req, res) => {
     const { idToken } = req.body;
     if (!idToken) {
       return res.status(400).json({ error: 'Missing idToken' });
+      console.log(res.statusCode);
     }
 
     // 1. Verify Google ID Token
@@ -55,5 +56,7 @@ exports.googleMobileLogin = async (req, res) => {
   } catch (err) {
     console.error('Google Mobile Login Error:', err);
     res.status(401).json({ error: 'Invalid Google token' });
+    console.log(res.statusCode, "Message", message.error);
   }
+  console.log(res.statusCode);
 };
