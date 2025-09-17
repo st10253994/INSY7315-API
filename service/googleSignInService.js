@@ -25,19 +25,11 @@ class googleSignInService {
     const user = {
       ...userData,
       createdAt: new Date(),
-      lastLogin: new Date(),
     };
     const result = await this.collection.insertOne(user);
     return { _id: result.insertedId, ...user };
   }
 
-  //Update last login
-  async updateLastLogin(userId) {
-    await this.collection.updateOne(
-      { _id: toObjectId(userId) },
-      { $set: { lastLogin: new Date() } }
-    );
-  }
 
   //Get user by DB ID
   async getUserById(userId) {
