@@ -26,12 +26,13 @@ exports.loginUser = async (req, res) => {
 
 exports.postUserProfile = async (req, res) => {
     try {
-        const userProfile = await profile.postUserProfile({userId: req.params.id, ...req.body});
+        const userProfile = await profile.postUserProfile(req.params.id, req.body);
         res.status(201).json(userProfile);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 exports.getUserById = async (req, res) => {
     try {

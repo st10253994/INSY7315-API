@@ -16,11 +16,11 @@ async function getProfileById(id) {
     return user;
 }
 
-async function postUserProfile(data) {
+async function postUserProfile(id, data) {
     const db = client.db('RentWise');
     const userSettings = db.collection('User-Settings');
 
-    const { userId, username, firstName, surname, email, phone, DoB } = data;
+    const { username, firstName, surname, email, phone, DoB } = data;
 
     const newProfile = {
         ...(username ? { username } : {}),
@@ -28,18 +28,26 @@ async function postUserProfile(data) {
         ...(surname ? { surname } : {}),
         ...(email ? { email } : {}),
         ...(phone ? { phone } : {}),
-        ...(DoB ? { DoB: new Date(DoB) } : {}),
-        userId: toObjectId(userId),
-        updatedAt: new Date()
+        ...(DoB ? { DoB: new Date(DoB) } : {})
     };
 
+    const updatedAt = new Date();
+
     await userSettings.updateOne(
-        { userId: toObjectId(userId) },
-        { $set: newProfile },
+        { userId: toObjectId(id) },
+        { $set: {
+            userId: toObjectId(id),
+            profile: newProfile,
+            updatedAt
+        }},
         { upsert: true }
     );
 
-    return newProfile;
+    return {
+    userId: toObjectId(id),
+    profile: newProfile, 
+    updatedAt
+    };
 }
 
 module.exports = { getProfileById, postUserProfile };
