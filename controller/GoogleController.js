@@ -5,7 +5,7 @@ const authService = new googleSignInService();
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// ✅ Controller functions
+//Controller functions
 exports.googleMobileLogin = async (req, res) => {
   try {
     const { idToken } = req.body;

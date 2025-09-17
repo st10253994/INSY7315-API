@@ -15,12 +15,12 @@ class googleSignInService {
     this.collection = db.collection('System-Users');
   }
 
-  // 🔍 Find user by Google ID
+  //Find user by Google ID
   async findUserByGoogleId(googleId) {
     return await this.collection.findOne({ googleId });
   }
 
-  // 👤 Create a new user
+  //Create a new user
   async createUser(userData) {
     const user = {
       ...userData,
@@ -31,7 +31,7 @@ class googleSignInService {
     return { _id: result.insertedId, ...user };
   }
 
-  // 🔄 Update last login
+  //Update last login
   async updateLastLogin(userId) {
     await this.collection.updateOne(
       { _id: toObjectId(userId) },
@@ -39,7 +39,7 @@ class googleSignInService {
     );
   }
 
-  // 🔎 Get user by DB ID
+  //Get user by DB ID
   async getUserById(userId) {
     return await this.collection.findOne({ _id: toObjectId(userId) });
   }
