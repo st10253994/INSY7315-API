@@ -1,5 +1,6 @@
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
+const bookings = require('./bookingService');
 
 function toObjectId(id) {
   // If already an ObjectId, return it
@@ -40,6 +41,10 @@ async function createReview(userID, listingID, data) {
     if(!user){
       throw new Error('User does not exist');
     }
+
+    const booked = await bookings.getBookingById(userID);
+    if(!booked) throw new Error('Can only leave a review is booking was made');
+    
     const newReview = {
       listingId: toObjectId(listingID),
       userId: toObjectId(userID),
