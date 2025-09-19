@@ -29,6 +29,7 @@ async function createReview(userID, listingID, data) {
     const reviewsCollection = db.collection('Reviews');
     const listingsCollection = db.collection('Listings');
     const userCollection = db.collection('System-Users');
+    const bookingCollection = db.collection('Bookings');
 
     // Check if listing exists
     const listing = await listingsCollection.findOne({ _id: toObjectId(listingID) });
@@ -42,9 +43,11 @@ async function createReview(userID, listingID, data) {
       throw new Error('User does not exist');
     }
 
-    const booked = await bookings.getBookingById(userID);
-    if(!booked) throw new Error('Can only leave a review is booking was made');
-    
+    const booked = await bookingCollection.findOne({userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID)});
+    if(!booked){
+      throw new Error('Can only leave a review is booking was made');
+    }
+
     const newReview = {
       listingId: toObjectId(listingID),
       userId: toObjectId(userID),
