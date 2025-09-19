@@ -48,8 +48,8 @@ app.delete('/api/:userID/:listingID/unfavourite', checkAuth, favouriteController
 app.get('/api/favourite/:listingID', checkAuth, favouriteController.getFavouriteByListingId);
 
 // Review Routes
-app.get('/api/reviews', checkAuth, reviewController.getAllReviews);
-app.post('/api/reviews/:id/create', checkAuth, reviewController.createReview);
+app.get('/api/:listingID/reviews', checkAuth, reviewController.getAllReviews);
+app.post('/api/reviews/:userID/:listingID/create', checkAuth, reviewController.createReview);
 
 // User Routes
 app.post('/api/users/register', userController.registerUser);

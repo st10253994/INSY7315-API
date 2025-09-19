@@ -15,7 +15,7 @@ function toObjectId(id) {
 }
 
 // CREATE
-async function createReview(id, data) {
+async function createReview(userID, listingID, data) {
   const {rating, comment } = data;
   if (!rating) {
     throw new Error("listingID and rating are required");
@@ -27,14 +27,22 @@ async function createReview(id, data) {
     const db = client.db('RentWise');
     const reviewsCollection = db.collection('Reviews');
     const listingsCollection = db.collection('Listings');
+    const userCollection = db.collection('System-Users');
 
     // Check if listing exists
-    const listing = await listingsCollection.findOne({ _id: toObjectId(id) });
+    const listing = await listingsCollection.findOne({ _id: toObjectId(listingID) });
     if (!listing) {
       throw new Error("Listing not found");
     }
+
+    //check if user exists
+    const user = await userCollection.findOne({_id: toObjectId(userID)});
+    if(!user){
+      throw new Error('User does not exist');
+    }
     const newReview = {
-      listingID: toObjectId(id),
+      listingId: toObjectId(listingID),
+      userId: toObjectId(userID),
       rating,
       comment: comment || "",
       createdAt: new Date()
@@ -47,11 +55,16 @@ async function createReview(id, data) {
 }
 
 // GET all
-async function getAllReviews() {
+async function getAllReviews(listingID) {
   try {
     const db = client.db('RentWise');
     const reviewsCollection = db.collection('Reviews');
-    const reviews = await reviewsCollection.find({}).toArray();
+    
+    const reviews = await reviewsCollection.find({listingId: toObjectId(listingID)}).toArray();
+
+    if(!reviews){
+      throw new Error('There are not reviews for the listing');
+    }
     return reviews;
   } catch (error) {
     throw new Error(`Error fetching reviews: ${error.message}`);
