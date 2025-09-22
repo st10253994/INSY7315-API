@@ -1,13 +1,20 @@
 const listingService = require('../service/listingService');
-const {translateText, translateFields} = require('../service/translateService');
+const translate = require('../service/translateService');
 
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await listingService.getAllListings();
-    res.status(200).json(listings);
+    const lang = req.user?.preferredLanguage || 'en';
+
+    const translated = await Promise.all(
+      listings.map(l => translate.translateListing(l, lang))
+    );
+
+    res.status(200).json(translated);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }};
+  }
+};
 
 exports.createListing = async (req, res) => {
   try {
@@ -33,30 +40,18 @@ exports.createListing = async (req, res) => {
 exports.getListingById = async (req, res) => {
   try {
     const listing = await listingService.getListingById(req.params.id);
-    if(!listing){
-      return res.status(404).json({error: "Listing not found"});
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found" });
     }
 
-    //Determine target language
-    const targetLang = req.query.lang || 'en';
+    const lang = req.user?.preferredLanguage || 'en';
+    const translated = await translate.translateListing(listing, lang);
 
-    if (targetLang !== 'en') {
-      // translate fields dynamically
-      if (listing.title) {
-        listing.title = await translateText(listing.title, targetLang);
-      }
-      if (listing.description) {
-        listing.description = await translateText(listing.description, targetLang);
-      }
-      if (Array.isArray(listing.amenities)) {
-        listing.amenities = await translateFields(listing.amenities, targetLang);
-      }
-    }
-
-    res.status(200).json(listing);
+    res.status(200).json(translated);
   } catch (error) {
-    res.status(404).json({ error: error.message });
-  }};
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.deleteListing = async (req, res) => {
   try {

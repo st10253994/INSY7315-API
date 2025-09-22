@@ -2,6 +2,7 @@ const { client } = require('../database/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
+const { ObjectId } = require('mongodb');
 dotenv.config();
 
 function toObjectId(id) {

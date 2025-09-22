@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
-const { checkAuth } = require('./Auth/checkAuth')
+const { checkAuth } = require('./Auth/checkAuth');
 const { upload, uploadFiles, maintenanceUpload } = require('./database/cloudinary');
 const cors = require('cors');
 
