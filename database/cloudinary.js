@@ -58,7 +58,7 @@ const maintenanceStorage = new CloudinaryStorage({
 const uploadFiles = require('multer')({ storage: dynamicStorage });
 const maintenanceUpload = require('multer')({ storage: maintenanceStorage })
 const upload = require('multer')({ storage });
-const pfpUpload = require('multer')({pfpStorage});
+const pfpUpload = require('multer')({storage: pfpStorage});
 
 module.exports = {
    cloudinary, 
