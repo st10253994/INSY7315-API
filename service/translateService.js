@@ -107,7 +107,7 @@ async function translateFavourite(favourite, targetLang) {
 }
 
 async function translateAllFavourites(favourites, targetLang) {
-    if(!Array.isArray(favourites) || targetLang === 'en') return favourites;
+    if(targetLang === 'en') return favourites;
 
     console.log(`- Translating ${favourites.length} listings to ${targetLang}`);
 
