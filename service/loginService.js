@@ -4,6 +4,12 @@ const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
 dotenv.config();
 
+function toObjectId(id) {
+  if (id instanceof ObjectId) return id; // already valid
+  if (typeof id === "string") return new ObjectId(id); 
+  throw new Error("Invalid id format");
+}
+
 async function loginUser(data) {
     const { email, password } = data;
 
@@ -29,7 +35,7 @@ async function loginUser(data) {
 
         // Generate JWT token
         const token = jwt.sign(
-        { email },
+        { email, userId: toObjectId(user._id) },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
         );
