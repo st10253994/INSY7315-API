@@ -7,7 +7,7 @@ exports.getAllListings = async (req, res) => {
     const lang = req.user?.preferredLanguage || 'en';
 
     const translated = await Promise.all(
-      listings.map(l => translate.translateListing(l, lang))
+      listings.map(l => translate.translateListing(listings, lang))
     );
 
     res.status(200).json(translated);
@@ -44,8 +44,8 @@ exports.getListingById = async (req, res) => {
       return res.status(404).json({ error: "Listing not found" });
     }
 
-    const lang = req.user?.preferredLanguage || 'en';
-    const translated = await translate.translateListing(listing, lang);
+    const targetLang = req.query.lang || req.user?.preferredLanguage || 'en';
+    const translated = await translate.translateListing(listing, targetLang);
 
     res.status(200).json(translated);
   } catch (error) {

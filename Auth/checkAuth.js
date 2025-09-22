@@ -34,13 +34,19 @@ const checkAuth = async (req, res, next) => {
     const profileDoc = await userSettings.findOne({ userId: toObjectId(user._id) });
     const profile = profileDoc?.profile || {};
 
+    console.log("User profile", profile);
+
     delete user.password;
+    delete user.preferredLanguage;
 
     req.user = {
       ...user, // base info like _id, email, role
       profile, // full profile object
-      preferredLanguage: profile.preferredLanguage || 'en' // shortcut
+      preferredLanguage: profile.prefferedLanguage || 'en' // shortcut
     };
+
+    console.log("🔍 checkAuth - FINAL req.user.preferredLanguage:", req.user.preferredLanguage);
+    console.log("🔍 checkAuth - FINAL req.user keys:", Object.keys(req.user));
 
     next();
   } catch (err) {

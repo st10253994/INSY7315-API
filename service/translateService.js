@@ -1,25 +1,36 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 
 // Generic text translation
 async function translateText(text, targetLang) {
   if (!text || targetLang === 'en') return text; //Skips the translation if the language is set to english
-
+  
+  console.log("- Text to translate:", text);
+  console.log("- Target language:", targetLang);
+  console.log("- Text length:", text.length);
+  
   try {
-    const response = await fetch('https://libretranslate.de/translate', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    // MyMemory API endpoint
+    const response = await axios.get('https://api.mymemory.translated.net/get', {
+      params: {
         q: text,
-        source: "en",
-        target: targetLang,
-        format: "text"
-      })
+        langpair: `en|${targetLang}`
+      }
     });
-
-    const data = await response.json();
-    return data.translatedText || text;
+    
+    console.log("- Response status:", response.status);
+    console.log("- Response data:", response.data);
+    
+    const data = response.data;
+    
+    // Check if translation was successful
+    if (data.responseStatus === 200 && data.responseData) {
+      return data.responseData.translatedText || text;
+    } else {
+      console.log("- Translation failed, using original text");
+      return text;
+    }
   } catch (err) {
-    console.error("LibreTranslate error:", err.message);
+    console.error("MyMemory error:", err.response?.status, err.response?.data || err.message);
     return text; // fallback if API fails
   }
 }
@@ -30,16 +41,23 @@ async function translateFields(fields, targetLang) {
   return Promise.all(fields.map(text => translateText(text, targetLang)));
 }
 
-// Domain‑specific: listings
+// Domain-specific: listings
 async function translateListing(listing, targetLang) {
-  return {
-    ...listing,
-    title: await translateText(listing.title, targetLang),
-    description: await translateText(listing.description, targetLang),
-    amenities: listing.amenities
-      ? await translateFields(listing.amenities, targetLang)
-      : []
-  };
+  if (targetLang === 'en') return listing; // Skip if English
+  
+  try {
+    return {
+      ...listing,
+      title: await translateText(listing.title, targetLang),
+      description: await translateText(listing.description, targetLang),
+      amenities: listing.amenities
+        ? await translateFields(listing.amenities, targetLang)
+        : []
+    };
+  } catch (err) {
+    console.error("Error translating listing:", err.message);
+    return listing; // Return original if translation fails
+  }
 }
 
 module.exports = {
