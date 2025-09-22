@@ -40,9 +40,17 @@ async function registerUser(data) {
         // ✅ Insert into User-Settings (linked by userId)
         const newSettings = {
             userId,
-            email,
-            createdAt: new Date(),
-            profile: {},  // placeholder for future profile info/settings
+            profile: {
+                username: "",
+                firstName: "",
+                surname: "",
+                email: email,
+                phone: "",
+                DoB: "",
+                preferredLanguage: "",
+                pfpImage: ""
+            },
+            createdAt: new Date()
         };
 
         await userSettings.insertOne(newSettings);
