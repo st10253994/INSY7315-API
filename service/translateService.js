@@ -60,8 +60,29 @@ async function translateListing(listing, targetLang) {
   }
 }
 
+// For translating multiple listings
+async function translateAllListings(listings, targetLang) {
+  if (!Array.isArray(listings) || targetLang === 'en') return listings;
+  
+  console.log(`- Translating ${listings.length} listings to ${targetLang}`);
+  
+  try {
+    // Translate all listings in parallel
+    const translatedListings = await Promise.all(
+      listings.map(listing => translateListing(listing, targetLang))
+    );
+    
+    console.log(`- Successfully translated ${translatedListings.length} listings`);
+    return translatedListings;
+  } catch (err) {
+    console.error("Error translating all listings:", err.message);
+    return listings; // Return original if translation fails
+  }
+}
+
 module.exports = {
   translateText,
   translateFields,
-  translateListing
+  translateListing,
+  translateAllListings
 };

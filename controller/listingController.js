@@ -4,11 +4,8 @@ const translate = require('../service/translateService');
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await listingService.getAllListings();
-    const lang = req.user?.preferredLanguage || 'en';
-
-    const translated = await Promise.all(
-      listings.map(l => translate.translateListing(listings, lang))
-    );
+    const targetLang = req.query.lang || req.user?.preferredLanguage || 'en';
+    const translated = await translate.translateAllListings(listings, targetLang);
 
     res.status(200).json(translated);
   } catch (error) {
