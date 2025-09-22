@@ -29,6 +29,15 @@ async function postUserProfile(id, data) {
   // Existing profile or empty
   const existingProfile = existingDoc?.profile || {};
 
+  const booleanFields = ["notifications", "offlineSync"];
+  booleanFields.forEach(field => {
+    if (data[field] !== undefined) {
+      data[field] = data[field] === "true"; // convert string to boolean
+    } else if (existingProfile[field] === undefined) {
+      data[field] = false; // default false if not sent and not in existing profile
+    }
+  });
+
   // Merge: user-provided fields override existing ones
   const newProfile = {
     ...existingProfile,
