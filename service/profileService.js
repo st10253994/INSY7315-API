@@ -37,6 +37,7 @@ async function postUserProfile(id, data) {
 
   const updatedAt = new Date();
 
+
   await userSettings.updateOne(
     { userId: toObjectId(id) },
     {

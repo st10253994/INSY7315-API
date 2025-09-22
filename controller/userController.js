@@ -26,7 +26,12 @@ exports.loginUser = async (req, res) => {
 
 exports.postUserProfile = async (req, res) => {
     try {
-        const userProfile = await profile.postUserProfile(req.params.id, req.body);
+        const id = req.params.id;
+        
+        const pfpUrl = req.file ? req.file.path: null
+        const data = { ...req.body, pfpImage: pfpUrl };
+
+        const userProfile = await profile.postUserProfile(id, data);
         res.status(201).json(userProfile);
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -20,6 +20,16 @@ const storage = new CloudinaryStorage({
   },
 });
 
+//configure Multer storage for Cloudinary
+const pfpStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'profilePicture', // folder in Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 800, height: 800, crop: "limit" }], // optional
+  },
+});
+
 // Configure dynamic Multer storage for Cloudinary
 const dynamicStorage = new CloudinaryStorage({
   cloudinary,
@@ -48,10 +58,12 @@ const maintenanceStorage = new CloudinaryStorage({
 const uploadFiles = require('multer')({ storage: dynamicStorage });
 const maintenanceUpload = require('multer')({ storage: maintenanceStorage })
 const upload = require('multer')({ storage });
+const pfpUpload = require('multer')({pfpStorage});
 
 module.exports = {
    cloudinary, 
    upload,
    uploadFiles,
-   maintenanceUpload
+   maintenanceUpload,
+   pfpUpload
 };

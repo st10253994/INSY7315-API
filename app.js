@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth');
-const { upload, uploadFiles, maintenanceUpload } = require('./database/cloudinary');
+const { upload, uploadFiles, maintenanceUpload, pfpUpload } = require('./database/cloudinary');
 const cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
@@ -55,7 +55,7 @@ app.post('/api/reviews/:userID/:listingID/create', checkAuth, reviewController.c
 app.post('/api/users/register', userController.registerUser);
 app.post('/api/users/login', userController.loginUser);
 app.get('/api/users/:id', userController.getUserById);   
-app.post('/api/users/:id/profile', userController.postUserProfile);
+app.post('/api/users/:id/profile', checkAuth, pfpUpload.single('pfpImage'), userController.postUserProfile);
 
 // Notification Routes
 app.get('/api/notifications', checkAuth, notificationController.getAllNotifications);
