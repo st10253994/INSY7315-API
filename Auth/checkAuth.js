@@ -42,7 +42,7 @@ const checkAuth = async (req, res, next) => {
     req.user = {
       ...user, // base info like _id, email, role
       profile, // full profile object
-      preferredLanguage: profile.prefferedLanguage || 'en' // shortcut
+      preferredLanguage: profile.preferredLanguage || 'en' // shortcut
     };
 
     console.log("🔍 checkAuth - FINAL req.user.preferredLanguage:", req.user.preferredLanguage);
