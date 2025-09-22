@@ -80,9 +80,56 @@ async function translateAllListings(listings, targetLang) {
   }
 }
 
+async function translateFavourite(favourite, targetLang) {
+  if (targetLang === 'en') return favourite; // Skip if English
+  
+  try {
+    // Check if listingDetail exists and has the nested structure
+    if (favourite.listingDetail) {
+      return {
+        ...favourite,
+        listingDetail: {
+          ...favourite.listingDetail,
+          title: await translateText(favourite.listingDetail.title, targetLang),
+          description: await translateText(favourite.listingDetail.description, targetLang),
+          amenities: favourite.listingDetail.amenities
+            ? await translateFields(favourite.listingDetail.amenities, targetLang)
+            : []
+        }
+      };
+    }
+    // Fallback: return original if structure is different
+    return favourite;
+  } catch (err) {
+    console.error("Error translating favourite:", err.message);
+    return favourite; // Return original if translation fails
+  }
+}
+
+async function translateAllFavourites(favourites, targetLang) {
+    if(!Array.isArray(favourites) || targetLang === 'en') return favourites;
+
+    console.log(`- Translating ${favourites.length} listings to ${targetLang}`);
+
+    try {
+        //Translate all favourites in parallel
+        const translatedFavourites = await Promise.all(
+            favourites.map(favourite => translateFavourite(favourite, targetLang))
+        );
+
+        console.log(`- Successfully translated ${translatedFavourites.length} listings`);
+        return translatedFavourites;
+    } catch (err) {
+        console.error("Error translating all favourite listings:", err.message);
+        return favourites; // Return original if translation fails
+    }
+}
+
 module.exports = {
   translateText,
   translateFields,
   translateListing,
-  translateAllListings
+  translateAllListings,
+  translateAllFavourites,
+  translateFavourite
 };

@@ -1,4 +1,5 @@
 const favouriteService = require('../service/favouriteService');
+const translate = require('../service/translateService');
 
 exports.favouriteListing = async (req, res) => {
     try {
@@ -12,7 +13,9 @@ exports.favouriteListing = async (req, res) => {
 exports.getFavouriteListings = async (req, res) => {
     try {
         const listings = await favouriteService.getFavouriteListings(req.params.userID);
-        res.status(200).json(listings);
+        const targetLang = req.query.lang || req.user?.preferredLanguage || 'en';
+        const translated = await translate.translateAllFavourites(listings, targetLang);
+        res.status(200).json(translated);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -31,7 +34,10 @@ exports.unfavouriteListing = async (req, res) => {
 exports.getFavouriteByListingId = async (req, res) => {
     try {
         const favourite = await favouriteService.getFavouriteByListingId(req.params.listingID);
-        res.status(200).json(favourite);
+        const targetLang = req.query.lang || req.user?.preferredLanguage || 'en';
+        const translated = await translate.translateFavourite(favourite, targetLang);
+
+        res.status(200).json(translated);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
