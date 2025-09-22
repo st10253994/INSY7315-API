@@ -7,47 +7,53 @@ function toObjectId(id) {
   throw new Error("Invalid id format");
 }
 
+// Get user profile by userId
 async function getProfileById(id) {
-    const db = client.db('RentWise');
-    const userSettings = db.collection('User-Settings');
+  const db = client.db('RentWise');
+  const userSettings = db.collection('User-Settings');
 
-    const user = await userSettings.findOne({ userId: toObjectId(id) });
-    if (!user) throw new Error("User not found");
-    return user;
+  const user = await userSettings.findOne({ userId: toObjectId(id) });
+  if (!user) throw new Error("User not found");
+
+  return user;
 }
 
+// Create or update profile (partial merge)
 async function postUserProfile(id, data) {
-    const db = client.db('RentWise');
-    const userSettings = db.collection('User-Settings');
+  const db = client.db('RentWise');
+  const userSettings = db.collection('User-Settings');
 
-    const { username, firstName, surname, email, phone, DoB } = data;
+  // Fetch existing document
+  const existingDoc = await userSettings.findOne({ userId: toObjectId(id) });
 
-    const newProfile = {
-        ...(username ? { username } : {}),
-        ...(firstName ? { firstName } : {}),
-        ...(surname ? { surname } : {}),
-        ...(email ? { email } : {}),
-        ...(phone ? { phone } : {}),
-        ...(DoB ? { DoB: new Date(DoB) } : {})
-    };
+  // Existing profile or empty
+  const existingProfile = existingDoc?.profile || {};
 
-    const updatedAt = new Date();
+  // Merge: user-provided fields override existing ones
+  const newProfile = {
+    ...existingProfile,
+    ...data
+  };
 
-    await userSettings.updateOne(
-        { userId: toObjectId(id) },
-        { $set: {
-            userId: toObjectId(id),
-            profile: newProfile,
-            updatedAt
-        }},
-        { upsert: true }
-    );
+  const updatedAt = new Date();
 
-    return {
+  await userSettings.updateOne(
+    { userId: toObjectId(id) },
+    {
+      $set: {
+        userId: toObjectId(id),
+        profile: newProfile,
+        updatedAt
+      }
+    },
+    { upsert: true }
+  );
+
+  return {
     userId: toObjectId(id),
-    profile: newProfile, 
+    profile: newProfile,
     updatedAt
-    };
+  };
 }
 
 module.exports = { getProfileById, postUserProfile };
