@@ -51,6 +51,7 @@ async function postUserProfile(id, data) {
   );
 
   return {
+    message: "Profile Updated Successfully",
     userId: toObjectId(id),
     profile: newProfile,
     updatedAt
