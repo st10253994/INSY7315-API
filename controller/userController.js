@@ -30,11 +30,13 @@ exports.postUserProfile = async (req, res) => {
         
         const pfpUrl = req.file ? req.file.path: null
         const data = { ...req.body, pfpImage: pfpUrl };
-
+        
+        console.log(`Update Request received ${JSON.stringify(data, null, 2)}`)
         const userProfile = await profile.postUserProfile(id, data);
         res.status(201).json(userProfile);
     } catch (error) {
         res.status(400).json({ error: error.message });
+        console.log(`Error: ${error.message}`);
     }
 };
 
