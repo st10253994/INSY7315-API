@@ -33,6 +33,7 @@ exports.postUserProfile = async (req, res) => {
         
         console.log(`Update Request received ${JSON.stringify(data, null, 2)}`)
         const userProfile = await profile.postUserProfile(id, data);
+        console.log(userProfile)
         res.status(201).json(userProfile);
     } catch (error) {
         res.status(400).json({ error: error.message });
