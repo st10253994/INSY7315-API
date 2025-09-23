@@ -31,7 +31,7 @@ class googleSignInService {
     const parts = userData.name.split(' ')
 
     const profile = {
-      name: parts[0],
+      firstName: parts[0],
       surname: parts[1],
       email: userData.email,
       pfpImage: userData.photo
