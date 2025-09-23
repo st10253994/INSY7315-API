@@ -13,7 +13,7 @@ class googleSignInService {
   constructor() {
     const db = client.db('RentWise');
     this.collection = db.collection('System-Users');
-    const userSettings = db.collection('User-Settings');
+    this.collections = db.collection('User-Settings');
   }
 
   //Find user by Google ID
@@ -28,7 +28,7 @@ class googleSignInService {
       createdAt: new Date(),
     };
     const result = await this.collection.insertOne(user);
-    const insert = await userSettings.insertOne(user);
+    const insert = await this.collections.insertOne(user);
     return { _id: result.insertedId,_id: insert.insertedId, ...user };
   }
 
