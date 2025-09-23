@@ -39,7 +39,7 @@ class googleSignInService {
 
     const result = await this.collection.insertOne(user);
     const userId = result.insertedId;
-    await profileService.insertOne(userId, profile)
+    await profileService.postUserProfile(userId, profile);
     return { _id: result.insertedId, ...user };
   }
 
