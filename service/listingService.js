@@ -44,8 +44,6 @@ async function createListing(id, data) {
 
     const user = await landlordDetails.getProfileById(id); // Verify landlord exists
 
-    console.log(user);
-
     const landlordInfo = {
       landlord: user._id,
       firstName: user.profile?.firstName,

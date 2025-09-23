@@ -30,11 +30,13 @@ class googleSignInService {
 
     const parts = userData.name.split(' ')
 
+    console.log(user);
+
     const profile = {
       firstName: parts[0],
       surname: parts[1],
       email: userData.email,
-      pfpImage: userData.photo
+      pfpImage: userData.pfpImage
     }
 
     const result = await this.collection.insertOne(user);

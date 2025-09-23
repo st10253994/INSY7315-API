@@ -27,7 +27,7 @@ exports.googleMobileLogin = async (req, res) => {
         googleId: payload.sub,
         name: payload.name,
         email: payload.email,
-        photo: payload.picture,
+        pfpImage: payload.picture,
       });
     }
     // 3. Create JWT
