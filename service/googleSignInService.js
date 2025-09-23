@@ -1,4 +1,5 @@
 const { client } = require('../database/db');
+const profile = require('./profileService');
 const { ObjectId } = require('mongodb');
 
 function toObjectId(id) {
@@ -13,7 +14,7 @@ class googleSignInService {
   constructor() {
     const db = client.db('RentWise');
     this.collection = db.collection('System-Users');
-    this.collections = db.collection('User-Settings');
+    this.collections = db.collection('User-Settings')
   }
 
   //Find user by Google ID
@@ -22,13 +23,17 @@ class googleSignInService {
   }
 
   //Create a new user
-  async createUser(userData) {
+  async createUser(userData, profileData) {
     const user = {
       ...userData,
       createdAt: new Date(),
     };
+    const profile = {
+      ...profileData
+    }
     const result = await this.collection.insertOne(user);
-    const insert = await this.collections.insertOne(user);
+    const userID = result.insertedId;
+    const insert = await profile.postUserProfile(userID, profile);
     return { _id: result.insertedId,_id: insert.insertedId, ...user };
   }
 
