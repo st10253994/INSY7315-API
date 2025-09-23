@@ -48,6 +48,11 @@ async function createBooking(userID, listingID, data) {
       throw new Error('Listing not found');
     }
 
+    const existingBooking = await bookingsCollection.findOne({ userId: toObjectId(userID)})
+    if(existingBooking) {
+      throw new Error('User already has an active or pending booking. Wait until the dates pass to make a new one');
+    }
+
     const listingInfo = await listingDetails.getListingById(listingID);
     
         const listingDetail = {
@@ -58,9 +63,9 @@ async function createBooking(userID, listingID, data) {
           amenities: listingInfo.amenities,
           images: listingInfo.imagesURL,
           price: listingInfo.parsedPrice,
-          isFavourited: true, // Fixed assignment
+          isFavourited: true, 
           landlordInfo: listingInfo.landlordInfo,
-          createdAt: new Date() // Fixed assignment
+          createdAt: new Date() 
         };
 
     const newBooking = {
@@ -99,7 +104,7 @@ async function getBookingById(id) {
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
-  const booking = await bookings.findOne({ userId: toObjectId(id), 'newBooking.status': 'Pending' });
+  const booking = await bookings.findOne({ userId: toObjectId(id), 'newBooking.status': { $nin: ['Active', 'Completed', 'Cancelled'] }});
   if (!booking) throw new Error('No Booking Was Found');
   
   return booking;
