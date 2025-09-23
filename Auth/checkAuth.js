@@ -18,7 +18,6 @@ const checkAuth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("🔍 decoded.userId:", decoded.userId, "type:", typeof decoded.userId);
 
     const db = client.db('RentWise');
     const systemUsers = db.collection('System-Users');
@@ -41,16 +40,11 @@ const checkAuth = async (req, res, next) => {
     }
 
     if (!user) {
-      console.log("❌ User not found with userId:", decoded.userId);
       return res.status(401).json({ message: "User not found" });
     }
 
-    console.log("👤 Found user:", user.email || user._id);
-
     const profileDoc = await userSettings.findOne({ userId: toObjectId(user._id) });
     const profile = profileDoc?.profile || {};
-
-    console.log("User profile", profile);
 
     // Clean up sensitive data
     delete user.password;
@@ -61,9 +55,6 @@ const checkAuth = async (req, res, next) => {
       profile, // full profile object
       preferredLanguage: profile.preferredLanguage || 'en' // shortcut
     };
-
-    console.log("🔍 checkAuth - FINAL req.user.preferredLanguage:", req.user.preferredLanguage);
-    console.log("🔍 checkAuth - FINAL req.user keys:", Object.keys(req.user));
 
     next();
   } catch (err) {

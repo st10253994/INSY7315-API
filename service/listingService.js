@@ -46,10 +46,11 @@ async function createListing(id, data) {
 
     const landlordInfo = {
       landlord: user._id,
-      firstName: user.firstName,
-      surname: user.surname,
-      phone: user.phone,
-      email: user.email,
+      firstName: user.profile?.firstName,
+      surname: user.profile?.surname,
+      phone: user.profile?.phone,
+      email: user.profile?.email,
+      pfpImage: user.profile?.pfpImage
     };
 
     const newListing = {

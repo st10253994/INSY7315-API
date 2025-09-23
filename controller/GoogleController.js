@@ -27,14 +27,8 @@ exports.googleMobileLogin = async (req, res) => {
         googleId: payload.sub,
         name: payload.name,
         email: payload.email,
-        photo: payload.picture,
+        pfpImage: payload.picture,
       });
-
-      profile = await authService.createUser({
-        name: payload.name,
-        email: payload.email,
-        photo: payload.picture,
-      })
     }
     // 3. Create JWT
     const token = jwt.sign(
