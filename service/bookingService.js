@@ -99,7 +99,7 @@ async function getBookingById(id) {
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
-  const booking = await bookings.findOne({ userId: toObjectId(id) });
+  const booking = await bookings.findOne({ userId: toObjectId(id), 'newBooking.status': 'Pending' });
   if (!booking) throw new Error('No Booking Was Found');
   
   return booking;
