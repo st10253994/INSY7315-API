@@ -50,6 +50,7 @@ async function createListing(id, data) {
       surname: user.surname,
       phone: user.phone,
       email: user.email,
+      pfpImage: user.pfpImage
     };
 
     const newListing = {
