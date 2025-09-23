@@ -44,13 +44,15 @@ async function createListing(id, data) {
 
     const user = await landlordDetails.getProfileById(id); // Verify landlord exists
 
+    console.log(user);
+
     const landlordInfo = {
       landlord: user._id,
-      firstName: user.firstName,
-      surname: user.surname,
-      phone: user.phone,
-      email: user.email,
-      pfpImage: user.pfpImage
+      firstName: user.profile?.firstName,
+      surname: user.profile?.surname,
+      phone: user.profile?.phone,
+      email: user.profile?.email,
+      pfpImage: user.profile?.pfpImage
     };
 
     const newListing = {
