@@ -53,19 +53,25 @@ async function createBooking(userID, listingID, data) {
       throw new Error('Listing not found');
     }
 
+    const existingBooking = await bookingsCollection.findOne({ userId: toObjectId(userID)})
+    if(existingBooking) {
+      throw new Error('User already has an active or pending booking. Wait until the dates pass to make a new one');
+    }
+
     const listingInfo = await listingDetails.getListingById(listingID);
-    const listingDetail = {
-      listingID: listingInfo._id,
-      title: listingInfo.title,
-      address: listingInfo.address,
-      description: listingInfo.description,
-      amenities: listingInfo.amenities,
-      images: listingInfo.imagesURL,
-      price: listingInfo.parsedPrice,
-      isFavourited: true,
-      landlordInfo: listingInfo.landlordInfo,
-      createdAt: new Date()
-    };
+    
+        const listingDetail = {
+          listingID: listingInfo._id,
+          title: listingInfo.title,
+          address: listingInfo.address,
+          description: listingInfo.description,
+          amenities: listingInfo.amenities,
+          images: listingInfo.imagesURL,
+          price: listingInfo.parsedPrice,
+          isFavourited: true, 
+          landlordInfo: listingInfo.landlordInfo,
+          createdAt: new Date() 
+        };
 
     const newBooking = {
       checkInDate,
@@ -114,12 +120,10 @@ async function getBookingById(id) {
   console.log(`[getBookingById] Entry: userId="${id}"`);
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
-  const booking = await bookings.findOne({ userId: toObjectId(id) });
-  if (!booking) {
-    console.error(`[getBookingById] Error: No Booking Was Found`);
-    throw new Error('No Booking Was Found');
-  }
-  console.log(`[getBookingById] Exit: Booking found for userId="${id}"`);
+
+  const booking = await bookings.findOne({ userId: toObjectId(id), 'newBooking.status': { $nin: ['Active', 'Completed', 'Cancelled'] }});
+  if (!booking) throw new Error('No Booking Was Found');
+  
   return booking;
 }
 

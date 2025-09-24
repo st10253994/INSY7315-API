@@ -52,6 +52,7 @@ exports.postUserProfile = async (req, res) => {
     console.log(`[postUserProfile] Entry: userId="${id}"`);
     try {
         const userProfile = await profile.postUserProfile(id, data);
+        console.log(userProfile)
         res.status(201).json(userProfile);
         console.log(`[postUserProfile] Exit: Profile updated for userId="${id}"`);
     } catch (error) {
