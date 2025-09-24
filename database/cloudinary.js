@@ -1,4 +1,8 @@
-// https://youtu.be/3Gj_mL9JJ6k?si=QhX71a3Fdf7SNxpr (tutorial link)
+/*
+Reference followed:
+OsmaniDev. 2023. How to upload images to Cloudinary with Multer and Express.js. [video online] 
+Available at: <https://youtu.be/3Gj_mL9JJ6k?si=QhX71a3Fdf7SNxpr> [Accessed 2 September 2025].
+*/
 
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');

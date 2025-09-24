@@ -66,6 +66,7 @@ const checkAuth = async (req, res, next) => {
     const profileDoc = await userSettings.findOne({ userId: toObjectId(user._id) });
     const profile = profileDoc?.profile || {};
 
+    //Remove user password and preferredLanguage from the user object
     delete user.password;
     delete user.preferredLanguage;
 

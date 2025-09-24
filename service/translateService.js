@@ -1,6 +1,11 @@
 const axios = require('axios');
 
 /**
+ * Documentation was provided with the API code followed. We are unable to reference due to the website being down however
+ * the translation service will only be introduced within part 3 therefore we may alter the code if we find a more suitable 
+ * document to follow. NB: THIS IS INCOMPLETE AND NOT TO BE MARKED. THIS IS FOR OUR TESTING PURPOSE ONLY TO FIND A SUITABLE
+ * TRANSLATING SERVICE.
+ * 
  * Translates a single text string to the target language using MyMemory API.
  * Returns the original text if the target language is English or if translation fails.
  * @param {string} text - The text to translate.

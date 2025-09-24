@@ -18,6 +18,11 @@
  * Verifies Google ID token, finds or creates user in database,
  * and returns JWT token with user information.
  * Uses Google OAuth2 client for token verification.
+ * 
+ * Reference used: 
+ * Gemini Google. 2025. verifying google client id within node.js. Google. Available at:
+ * <https://www.google.com/search?q=verifying+google+client+id+within+node.js&sca_esv=9349b9a2334e1130&ei=zrnTaNKPB-2ihbIP5dOr8QM&ved=2ahUKEwj5rtSHi_GPAxUeVEEAHfD-HA8Q0NsOegQIORAA&uact=5&sclient=gws-wiz-serp&udm=50&aep=10&ntc=1>
+ * [Accessed 16 September 2025].
  */
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
