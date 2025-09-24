@@ -2,22 +2,32 @@ const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
 const bookings = require('./bookingService');
 
+/**
+ * Converts a value to a MongoDB ObjectId if valid.
+ * @param {string|ObjectId} id - The id to convert.
+ * @returns {ObjectId}
+ * @throws {Error} If the id is not a valid ObjectId.
+ */
 function toObjectId(id) {
-  // If already an ObjectId, return it
   if (id instanceof ObjectId) return id;
-
-  // If it's a string and is valid, convert
   if (typeof id === "string" && ObjectId.isValid(id)) {
     return new ObjectId(id);
   }
-
-  // Otherwise, throw error
   throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
-// CREATE
+/**
+ * Creates a new review for a listing by a user.
+ * Checks for valid rating, user existence, and booking before allowing review.
+ * @param {string} userID - The user's id.
+ * @param {string} listingID - The listing's id.
+ * @param {object} data - Review details (rating, comment).
+ * @returns {Promise<object>} Confirmation message and review id.
+ * @throws {Error} If validation fails or dependencies are missing.
+ */
 async function createReview(userID, listingID, data) {
-  const {rating, comment } = data;
+  console.log(`[createReview] Entry: userID="${userID}", listingID="${listingID}"`);
+  const { rating, comment } = data;
   if (!rating) {
     throw new Error("listingID and rating are required");
   }
@@ -37,15 +47,16 @@ async function createReview(userID, listingID, data) {
       throw new Error("Listing not found");
     }
 
-    //check if user exists
-    const user = await userCollection.findOne({_id: toObjectId(userID)});
-    if(!user){
+    // Check if user exists
+    const user = await userCollection.findOne({ _id: toObjectId(userID) });
+    if (!user) {
       throw new Error('User does not exist');
     }
 
-    const booked = await bookingCollection.findOne({userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID)});
-    if(!booked){
-      throw new Error('Can only leave a review is booking was made');
+    // Ensure user has booked the listing before reviewing
+    const booked = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID) });
+    if (!booked) {
+      throw new Error('Can only leave a review if booking was made');
     }
 
     const newReview = {
@@ -56,25 +67,34 @@ async function createReview(userID, listingID, data) {
       createdAt: new Date()
     };
     const result = await reviewsCollection.insertOne(newReview);
+    console.log(`[createReview] Exit: Review created with id="${result.insertedId}"`);
     return { message: "Review created", reviewId: result.insertedId };
   } catch (error) {
+    console.error(`[createReview] Error: ${error.message}`);
     throw new Error(`Error creating review: ${error.message}`);
   }
 }
 
-// GET all
+/**
+ * Retrieves all reviews for a specific listing.
+ * @param {string} listingID - The listing's id.
+ * @returns {Promise<Array>} Array of review documents.
+ * @throws {Error} If no reviews are found or retrieval fails.
+ */
 async function getAllReviews(listingID) {
+  console.log(`[getAllReviews] Entry: listingID="${listingID}"`);
   try {
     const db = client.db('RentWise');
     const reviewsCollection = db.collection('Reviews');
-    
-    const reviews = await reviewsCollection.find({listingId: toObjectId(listingID)}).toArray();
+    const reviews = await reviewsCollection.find({ listingId: toObjectId(listingID) }).toArray();
 
-    if(!reviews){
+    if (!reviews) {
       throw new Error('There are not reviews for the listing');
     }
+    console.log(`[getAllReviews] Exit: Found ${reviews.length} reviews`);
     return reviews;
   } catch (error) {
+    console.error(`[getAllReviews] Error: ${error.message}`);
     throw new Error(`Error fetching reviews: ${error.message}`);
   }
 }

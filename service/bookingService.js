@@ -3,45 +3,50 @@ const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
 const listingDetails = require('./listingService');
 
+/**
+ * Converts a value to a MongoDB ObjectId if valid.
+ * @param {string|ObjectId} id - The id to convert.
+ * @returns {ObjectId}
+ * @throws {Error} If the id is not a valid ObjectId.
+ */
 function toObjectId(id) {
-  // If already an ObjectId, return it
   if (id instanceof ObjectId) return id;
-
-  // If it's a string and is valid, convert
   if (typeof id === "string" && ObjectId.isValid(id)) {
     return new ObjectId(id);
   }
-
-  // Otherwise, throw error
   throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
-// CREATE
+/**
+ * Creates a new booking for a user and listing.
+ * Validates required fields and embeds listing details in the booking.
+ * @param {string} userID - The user's id.
+ * @param {string} listingID - The listing's id.
+ * @param {object} data - Booking details (dates, guests, documents, price).
+ * @returns {Promise<object>} Confirmation message and booking id.
+ */
 async function createBooking(userID, listingID, data) {
+  console.log(`[createBooking] Entry: userID="${userID}", listingID="${listingID}"`);
   try{
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
 
     const { checkInDate, checkOutDate, numberOfGuests, supportDocuments = [], totalPrice } = data;
 
-    //Cast total price to a float and validate
     const parsedPrice = parseFloat(totalPrice);
     if (isNaN(parsedPrice)) {
       throw new Error('Total Price must be a valid number');
     }
-
     if (!checkInDate || !checkOutDate || !numberOfGuests) {
       throw new Error('Check-in date, check-out date, and number of guests are required');
     }
-    //if you give a single document, convert to array
     if (typeof supportDocuments === 'string') {
       data.supportDocuments = [supportDocuments];
     }
-    //if supportDocuments is not an array, throw error
     if (!Array.isArray(supportDocuments)) {
       throw new Error('supportDocuments must be an array of strings');
     }
-    // Ensure listing ID is valid
+
     const listingObjectId = toObjectId(listingID);
     const listing = await db.collection('Listings').findOne({ _id: listingObjectId });
     if (!listing) {
@@ -49,28 +54,27 @@ async function createBooking(userID, listingID, data) {
     }
 
     const listingInfo = await listingDetails.getListingById(listingID);
-    
-        const listingDetail = {
-          listingID: listingInfo._id,
-          title: listingInfo.title,
-          address: listingInfo.address,
-          description: listingInfo.description,
-          amenities: listingInfo.amenities,
-          images: listingInfo.imagesURL,
-          price: listingInfo.parsedPrice,
-          isFavourited: true, // Fixed assignment
-          landlordInfo: listingInfo.landlordInfo,
-          createdAt: new Date() // Fixed assignment
-        };
+    const listingDetail = {
+      listingID: listingInfo._id,
+      title: listingInfo.title,
+      address: listingInfo.address,
+      description: listingInfo.description,
+      amenities: listingInfo.amenities,
+      images: listingInfo.imagesURL,
+      price: listingInfo.parsedPrice,
+      isFavourited: true,
+      landlordInfo: listingInfo.landlordInfo,
+      createdAt: new Date()
+    };
 
     const newBooking = {
-        checkInDate,
-        checkOutDate,
-        numberOfGuests,
-        supportDocuments,
-        totalPrice: parsedPrice,
-        status: 'Pending',
-        createdAt: new Date()
+      checkInDate,
+      checkOutDate,
+      numberOfGuests,
+      supportDocuments,
+      totalPrice: parsedPrice,
+      status: 'Pending',
+      createdAt: new Date()
     };
 
     const result = await bookingsCollection.insertOne({
@@ -78,35 +82,56 @@ async function createBooking(userID, listingID, data) {
       listingDetail,
       newBooking
     });
+    console.log(`[createBooking] Exit: Booking created with id="${result.insertedId}"`);
     return { message: 'Booking created', bookingID: result.insertedId };
   }
   catch (error) {
+    console.error(`[createBooking] Error: ${error.message}`);
     throw new Error('Error creating booking: ' + error.message);
   }
 }
 
-// READ all
+/**
+ * Retrieves all bookings from the database.
+ * @returns {Promise<Array>} Array of booking documents.
+ */
 async function getAllBookings() {
+  console.log(`[getAllBookings] Entry`);
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
-
   const docs = await bookings.find({}).toArray();
-  return docs
+  console.log(`[getAllBookings] Exit: Found ${docs.length} bookings`);
+  return docs;
 }
 
-// READ one by id
+/**
+ * Retrieves a booking by user id.
+ * @param {string} id - The user's id.
+ * @returns {Promise<object>} The booking document.
+ * @throws {Error} If no booking is found.
+ */
 async function getBookingById(id) {
+  console.log(`[getBookingById] Entry: userId="${id}"`);
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
-
   const booking = await bookings.findOne({ userId: toObjectId(id) });
-  if (!booking) throw new Error('No Booking Was Found');
-  
+  if (!booking) {
+    console.error(`[getBookingById] Error: No Booking Was Found`);
+    throw new Error('No Booking Was Found');
+  }
+  console.log(`[getBookingById] Exit: Booking found for userId="${id}"`);
   return booking;
 }
 
-//update 
+/**
+ * Updates a booking by its id with provided fields.
+ * @param {string} id - The booking's id.
+ * @param {object} data - Fields to update.
+ * @returns {Promise<object>} Confirmation message.
+ * @throws {Error} If no valid fields or booking not found.
+ */
 async function updateBooking(id, data) {
+  console.log(`[updateBooking] Entry: bookingId="${id}"`);
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
@@ -121,31 +146,50 @@ async function updateBooking(id, data) {
     { _id: toObjectId(id) },
     { $set: updateData }
   );
-  if (result.matchedCount === 0) throw new Error('Booking not found');
-  if (result.modifiedCount === 0) throw new Error('No changes were made to the booking');
+  if (result.matchedCount === 0) {
+    console.error(`[updateBooking] Error: Booking not found`);
+    throw new Error('Booking not found');
+  }
+  if (result.modifiedCount === 0) {
+    console.warn(`[updateBooking] Warning: No changes were made to the booking`);
+    throw new Error('No changes were made to the booking');
+  }
 
+  console.log(`[updateBooking] Exit: Booking updated for bookingId="${id}"`);
   return { message: 'Booking updated' };
 }
 
-
-// DELETE
+/**
+ * Deletes a booking by its id.
+ * @param {string} id - The booking's id.
+ * @returns {Promise<object>} Confirmation message.
+ * @throws {Error} If booking not found.
+ */
 async function deleteBooking(id) {
+  console.log(`[deleteBooking] Entry: bookingId="${id}"`);
   const db = client.db('RentWise');
   const bookings = db.collection('Bookings');
 
   let _id;
-  try { _id = toObjectId(id); } catch { throw new Error('Invalid booking id'); }
+  try { _id = toObjectId(id); } catch { 
+    console.error(`[deleteBooking] Error: Invalid booking id`);
+    throw new Error('Invalid booking id'); 
+  }
 
   const result = await bookings.deleteOne({ _id });
-  if (result.deletedCount === 0) throw new Error('Booking not found');
+  if (result.deletedCount === 0) {
+    console.error(`[deleteBooking] Error: Booking not found`);
+    throw new Error('Booking not found');
+  }
 
+  console.log(`[deleteBooking] Exit: Booking deleted for bookingId="${id}"`);
   return { message: 'Booking deleted' };
 }
 
 module.exports = {
-  createBooking,   // working
-  getAllBookings,  // now defined
-  getBookingById, // working
-  deleteBooking,   // mongo-based
-  updateBooking   // newly added
+  createBooking,
+  getAllBookings,
+  getBookingById,
+  deleteBooking,
+  updateBooking
 };

@@ -3,21 +3,31 @@ const { ObjectId } = require('mongodb');
 const listingDetails = require('./listingService');
 const bookingService = require('./bookingService');
 
+/**
+ * Converts a value to a MongoDB ObjectId if valid.
+ * @param {string|ObjectId} id - The id to convert.
+ * @returns {ObjectId}
+ * @throws {Error} If the id is not a valid ObjectId.
+ */
 function toObjectId(id) {
-  // If already an ObjectId, return it
   if (id instanceof ObjectId) return id;
-
-  // If it's a string and is valid, convert
   if (typeof id === "string" && ObjectId.isValid(id)) {
     return new ObjectId(id);
   }
-
-  // Otherwise, throw error
   throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
-//create with listing ID
+/**
+ * Creates a new maintenance request for a user and listing.
+ * Validates required fields, checks for an active booking, and embeds listing details.
+ * @param {string} userID - The user's id.
+ * @param {string} listingID - The listing's id.
+ * @param {object} data - Maintenance request details (issue, description, priority, documents).
+ * @returns {Promise<object>} Confirmation message and maintenance request id.
+ * @throws {Error} If validation fails or dependencies are missing.
+ */
 async function createMaintenanceRequest(userID, listingID, data) {
+    console.log(`[createMaintenanceRequest] Entry: userID="${userID}", listingID="${listingID}"`);
     try{
         const db = client.db('RentWise');
         const maintenanceCollection = db.collection('Maintenance-Requests');
@@ -33,34 +43,35 @@ async function createMaintenanceRequest(userID, listingID, data) {
         // Check if listing exists
         const listing = await listingCollection.findOne({ _id: toObjectId(listingID) });
         if (!listing) {
-        throw new Error("Listing not found");
+            throw new Error("Listing not found");
         }
         const listingInfo = await listingDetails.getListingById(listingID);
         
-            const listingDetail = {
-              listingID: listingInfo._id,
-              title: listingInfo.title,
-              address: listingInfo.address,
-              description: listingInfo.description,
-              amenities: listingInfo.amenities,
-              images: listingInfo.imagesURL,
-              price: listingInfo.parsedPrice,
-              landlordInfo: listingInfo.landlordInfo
-            };
+        const listingDetail = {
+            listingID: listingInfo._id,
+            title: listingInfo.title,
+            address: listingInfo.address,
+            description: listingInfo.description,
+            amenities: listingInfo.amenities,
+            images: listingInfo.imagesURL,
+            price: listingInfo.parsedPrice,
+            landlordInfo: listingInfo.landlordInfo
+        };
 
-            const booking = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID), 'newBooking.status': 'Accepted' });
+        // Only allow maintenance requests for accepted bookings
+        const booking = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID), 'newBooking.status': 'Accepted' });
 
-            if(!booking){
-                throw new Error("There are no active bookings with the property to log the maintenance Request for");
-            }
+        if(!booking){
+            throw new Error("There are no active bookings with the property to log the maintenance Request for");
+        }
 
-            const newMaintenanceRequest = {
-                issue,
-                description,
-                priority,
-                documentsURL,
-                createdAt: new Date()
-            };
+        const newMaintenanceRequest = {
+            issue,
+            description,
+            priority,
+            documentsURL,
+            createdAt: new Date()
+        };
 
         const result = await maintenanceCollection.insertOne({
             userId: toObjectId(userID),
@@ -68,19 +79,31 @@ async function createMaintenanceRequest(userID, listingID, data) {
             bookingId: toObjectId(booking._id),
             newMaintenanceRequest
         });
+        console.log(`[createMaintenanceRequest] Exit: Maintenance request created with id="${result.insertedId}"`);
         return { message: "New Maintenance Request has been submitted", maintenanceID: result.insertedId };
     }catch(error){
+        console.error(`[createMaintenanceRequest] Error: ${error.message}`);
         throw new Error("Error creating Maintenance Request " + error.message);
     }
 }
 
+/**
+ * Retrieves all maintenance requests for a specific user.
+ * @param {string} userID - The user's id.
+ * @param {string} listingID - (Optional) The listing's id.
+ * @returns {Promise<Array>} Array of maintenance request documents.
+ * @throws {Error} If retrieval fails.
+ */
 async function getMaintenanceRequestForUserId(userID, listingID) {
+    console.log(`[getMaintenanceRequestForUserId] Entry: userID="${userID}"`);
     try {
         const db = client.db('RentWise');
         const maintenanceCollection = db.collection('Maintenance-Requests');
         const requests = await maintenanceCollection.find({ userId: toObjectId(userID) }).toArray();
+        console.log(`[getMaintenanceRequestForUserId] Exit: Found ${requests.length} requests`);
         return requests;
     } catch (error) {
+        console.error(`[getMaintenanceRequestForUserId] Error: ${error.message}`);
         throw new Error("Error fetching Maintenance Requests: " + error.message);
     }
 }

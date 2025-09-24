@@ -1,7 +1,15 @@
 const { client } = require('../database/db');
-const bcrypt = require('bcrypt'); // ✅ correct import
+const bcrypt = require('bcrypt');
 
+/**
+ * Registers a new user with email and password.
+ * Hashes the password, checks for duplicates, and creates default user settings.
+ * @param {object} data - Registration data (email, password).
+ * @returns {Promise<object>} Registration result with user id and info.
+ * @throws {Error} If registration fails or user already exists.
+ */
 async function registerUser(data) {
+    console.log(`[registerUser] Entry: email="${data?.email}"`);
     const { email, password } = data;
 
     if (!email || !password) {
@@ -29,7 +37,7 @@ async function registerUser(data) {
             createdAt: new Date()
         };
 
-        // ✅ Insert into System-Users
+        // Insert into System-Users
         const result = await systemUsers.insertOne(newUser);
         if (!result.acknowledged) {
             throw new Error("Failed to insert user");
@@ -37,7 +45,7 @@ async function registerUser(data) {
 
         const userId = result.insertedId;
 
-        // ✅ Insert into User-Settings (linked by userId)
+        // Insert default profile into User-Settings
         const newSettings = {
             userId,
             profile: {
@@ -56,6 +64,7 @@ async function registerUser(data) {
         await userSettings.insertOne(newSettings);
 
         // Return safe response
+        console.log(`[registerUser] Exit: User registered with id="${userId}"`);
         return {
             _id: userId,
             email: newUser.email,
@@ -64,6 +73,7 @@ async function registerUser(data) {
         };
 
     } catch (error) {
+        console.error(`[registerUser] Error: ${error.message}`);
         throw new Error(`Error registering user: ${error.message}`);
     }
 }

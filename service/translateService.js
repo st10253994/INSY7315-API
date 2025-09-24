@@ -1,52 +1,76 @@
 const axios = require('axios');
 
-// Generic text translation
+/**
+ * Translates a single text string to the target language using MyMemory API.
+ * Returns the original text if the target language is English or if translation fails.
+ * @param {string} text - The text to translate.
+ * @param {string} targetLang - The target language code (e.g., 'es', 'fr').
+ * @returns {Promise<string>} The translated text.
+ */
 async function translateText(text, targetLang) {
-  if (!text || targetLang === 'en') return text; //Skips the translation if the language is set to english
-  
-  console.log("- Text to translate:", text);
-  console.log("- Target language:", targetLang);
-  console.log("- Text length:", text.length);
-  
+  console.log(`[translateText] Entry: text="${text}", targetLang="${targetLang}"`);
+  if (!text || targetLang === 'en') {
+    console.log(`[translateText] Exit: No translation needed, returning original text.`);
+    return text;
+  }
+
   try {
-    // MyMemory API endpoint
     const response = await axios.get('https://api.mymemory.translated.net/get', {
       params: {
         q: text,
         langpair: `en|${targetLang}`
       }
     });
-    
-    console.log("- Response status:", response.status);
-    console.log("- Response data:", response.data);
-    
+
     const data = response.data;
-    
-    // Check if translation was successful
+
     if (data.responseStatus === 200 && data.responseData) {
+      console.log(`[translateText] Exit: Translation successful.`);
       return data.responseData.translatedText || text;
     } else {
-      console.log("- Translation failed, using original text");
+      console.warn(`[translateText] Exit: Translation failed, using original text.`);
       return text;
     }
   } catch (err) {
-    console.error("MyMemory error:", err.response?.status, err.response?.data || err.message);
-    return text; // fallback if API fails
+    console.error(`[translateText] Error:`, err.response?.status, err.response?.data || err.message);
+    console.log(`[translateText] Exit: API error, returning original text.`);
+    return text;
   }
 }
 
-// For amenities (arrays of strings)
+/**
+ * Translates an array of strings (e.g., amenities) to the target language.
+ * @param {Array<string>} fields - Array of text fields to translate.
+ * @param {string} targetLang - The target language code.
+ * @returns {Promise<Array<string>>} Array of translated strings.
+ */
 async function translateFields(fields, targetLang) {
-  if (!Array.isArray(fields)) return fields;
-  return Promise.all(fields.map(text => translateText(text, targetLang)));
+  console.log(`[translateFields] Entry: fields.length=${fields?.length || 0}, targetLang="${targetLang}"`);
+  if (!Array.isArray(fields)) {
+    console.log(`[translateFields] Exit: Not an array, returning original fields.`);
+    return fields;
+  }
+  const result = await Promise.all(fields.map(text => translateText(text, targetLang)));
+  console.log(`[translateFields] Exit: Translated ${result.length} fields.`);
+  return result;
 }
 
-// Domain-specific: listings
+/**
+ * Translates the main fields of a listing object to the target language.
+ * Returns the original listing if the target language is English or if translation fails.
+ * @param {object} listing - The listing object.
+ * @param {string} targetLang - The target language code.
+ * @returns {Promise<object>} The translated listing object.
+ */
 async function translateListing(listing, targetLang) {
-  if (targetLang === 'en') return listing; // Skip if English
-  
+  console.log(`[translateListing] Entry: listingId="${listing?._id}", targetLang="${targetLang}"`);
+  if (targetLang === 'en') {
+    console.log(`[translateListing] Exit: No translation needed, returning original listing.`);
+    return listing;
+  }
+
   try {
-    return {
+    const translated = {
       ...listing,
       title: await translateText(listing.title, targetLang),
       description: await translateText(listing.description, targetLang),
@@ -54,39 +78,59 @@ async function translateListing(listing, targetLang) {
         ? await translateFields(listing.amenities, targetLang)
         : []
     };
+    console.log(`[translateListing] Exit: Translation successful for listingId="${listing?._id}"`);
+    return translated;
   } catch (err) {
-    console.error("Error translating listing:", err.message);
-    return listing; // Return original if translation fails
+    console.error(`[translateListing] Error:`, err.message);
+    console.log(`[translateListing] Exit: Translation failed, returning original listing.`);
+    return listing;
   }
 }
 
-// For translating multiple listings
+/**
+ * Translates an array of listing objects to the target language.
+ * Returns the original array if the target language is English or if translation fails.
+ * @param {Array<object>} listings - Array of listing objects.
+ * @param {string} targetLang - The target language code.
+ * @returns {Promise<Array<object>>} Array of translated listings.
+ */
 async function translateAllListings(listings, targetLang) {
-  if (!Array.isArray(listings) || targetLang === 'en') return listings;
-  
-  console.log(`- Translating ${listings.length} listings to ${targetLang}`);
-  
+  console.log(`[translateAllListings] Entry: count=${Array.isArray(listings) ? listings.length : 0}, targetLang="${targetLang}"`);
+  if (!Array.isArray(listings) || targetLang === 'en') {
+    console.log(`[translateAllListings] Exit: No translation needed, returning original listings.`);
+    return listings;
+  }
+
   try {
-    // Translate all listings in parallel
     const translatedListings = await Promise.all(
       listings.map(listing => translateListing(listing, targetLang))
     );
-    
-    console.log(`- Successfully translated ${translatedListings.length} listings`);
+    console.log(`[translateAllListings] Exit: Successfully translated ${translatedListings.length} listings.`);
     return translatedListings;
   } catch (err) {
-    console.error("Error translating all listings:", err.message);
-    return listings; // Return original if translation fails
+    console.error(`[translateAllListings] Error:`, err.message);
+    console.log(`[translateAllListings] Exit: Translation failed, returning original listings.`);
+    return listings;
   }
 }
 
+/**
+ * Translates the fields of a favourite listing object to the target language.
+ * Returns the original favourite if the target language is English or if translation fails.
+ * @param {object} favourite - The favourite object.
+ * @param {string} targetLang - The target language code.
+ * @returns {Promise<object>} The translated favourite object.
+ */
 async function translateFavourite(favourite, targetLang) {
-  if (targetLang === 'en') return favourite; // Skip if English
-  
+  console.log(`[translateFavourite] Entry: favouriteId="${favourite?._id}", targetLang="${targetLang}"`);
+  if (targetLang === 'en') {
+    console.log(`[translateFavourite] Exit: No translation needed, returning original favourite.`);
+    return favourite;
+  }
+
   try {
-    // Check if listingDetail exists and has the nested structure
     if (favourite.listingDetail) {
-      return {
+      const translated = {
         ...favourite,
         listingDetail: {
           ...favourite.listingDetail,
@@ -97,32 +141,43 @@ async function translateFavourite(favourite, targetLang) {
             : []
         }
       };
+      console.log(`[translateFavourite] Exit: Translation successful for favouriteId="${favourite?._id}"`);
+      return translated;
     }
-    // Fallback: return original if structure is different
+    console.log(`[translateFavourite] Exit: No listingDetail, returning original favourite.`);
     return favourite;
   } catch (err) {
-    console.error("Error translating favourite:", err.message);
-    return favourite; // Return original if translation fails
+    console.error(`[translateFavourite] Error:`, err.message);
+    console.log(`[translateFavourite] Exit: Translation failed, returning original favourite.`);
+    return favourite;
   }
 }
 
+/**
+ * Translates an array of favourite listing objects to the target language.
+ * Returns the original array if the target language is English or if translation fails.
+ * @param {Array<object>} favourites - Array of favourite objects.
+ * @param {string} targetLang - The target language code.
+ * @returns {Promise<Array<object>>} Array of translated favourites.
+ */
 async function translateAllFavourites(favourites, targetLang) {
-    if(targetLang === 'en') return favourites;
+  console.log(`[translateAllFavourites] Entry: count=${Array.isArray(favourites) ? favourites.length : 0}, targetLang="${targetLang}"`);
+  if (targetLang === 'en') {
+    console.log(`[translateAllFavourites] Exit: No translation needed, returning original favourites.`);
+    return favourites;
+  }
 
-    console.log(`- Translating ${favourites.length} listings to ${targetLang}`);
-
-    try {
-        //Translate all favourites in parallel
-        const translatedFavourites = await Promise.all(
-            favourites.map(favourite => translateFavourite(favourite, targetLang))
-        );
-
-        console.log(`- Successfully translated ${translatedFavourites.length} listings`);
-        return translatedFavourites;
-    } catch (err) {
-        console.error("Error translating all favourite listings:", err.message);
-        return favourites; // Return original if translation fails
-    }
+  try {
+    const translatedFavourites = await Promise.all(
+      favourites.map(favourite => translateFavourite(favourite, targetLang))
+    );
+    console.log(`[translateAllFavourites] Exit: Successfully translated ${translatedFavourites.length} favourites.`);
+    return translatedFavourites;
+  } catch (err) {
+    console.error(`[translateAllFavourites] Error:`, err.message);
+    console.log(`[translateAllFavourites] Exit: Translation failed, returning original favourites.`);
+    return favourites;
+  }
 }
 
 module.exports = {

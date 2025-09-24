@@ -2,47 +2,48 @@ const { client } = require('../database/db');
 const landlordDetails = require('./profileService')
 const { ObjectId } = require('mongodb'); 
 
+/**
+ * @better
+ * Converts a given id to a MongoDB ObjectId if possible.
+ * Throws an error if the id is not a valid ObjectId string.
+ * @param {string|ObjectId} id - The id to convert.
+ * @returns {ObjectId}
+ */
 function toObjectId(id) {
-  // If already an ObjectId, return it
   if (id instanceof ObjectId) return id;
-
-  // If it's a string and is valid, convert
   if (typeof id === "string" && ObjectId.isValid(id)) {
     return new ObjectId(id);
   }
-
-  // Otherwise, throw error
   throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
-// CREATE
+/**
+ * @better
+ * Creates a new property listing in the database.
+ * Validates required fields and formats amenities and price.
+ * Embeds landlord profile information in the listing.
+ * @param {string} id - The landlord's user id.
+ * @param {object} data - Listing details (title, address, description, etc).
+ * @returns {Promise<object>} - Confirmation message and new listing id.
+ */
 async function createListing(id, data) {
   try {
     const { title, address, description, imagesURL = [], price, isFavourited } = data;
     let amenities = data.amenities || [];
-
     if (!title || !address || !description || !price) {
       throw new Error('Title, address, description, and price are required');
     }
-
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice)) {
       throw new Error('Price must be a valid number');
     }
-
-    // Normalize amenities: always make it an array
     if (!Array.isArray(amenities)) {
       amenities = amenities ? [amenities] : [];
     }
-
-    // Sanitize amenities and trim, remove empty strings and duplicates
     amenities = [...new Set(amenities.map(a => a.trim()).filter(a => a !== ''))];
-
-    // Ensure landlord ID is valid
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
-
-    const user = await landlordDetails.getProfileById(id); // Verify landlord exists
+    const user = await landlordDetails.getProfileById(id);
 
     const landlordInfo = {
       landlord: user._id,
@@ -72,7 +73,11 @@ async function createListing(id, data) {
   }
 }
 
-// READ all
+/**
+ * @better
+ * Retrieves all property listings from the database.
+ * @returns {Promise<Array>} - Array of all listings.
+ */
 async function getAllListings() {
   try {
     const db = client.db('RentWise');
@@ -84,14 +89,20 @@ async function getAllListings() {
   }
 }
 
-// READ one
+/**
+ * @better
+ * Retrieves a single property listing by its unique id.
+ * Throws an error if the listing is not found.
+ * @param {string} id - The listing's unique id.
+ * @returns {Promise<object>} - The listing object.
+ */
 async function getListingById(id) {
   try {
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
     const listing = await listingsCollection.findOne({ _id: toObjectId(id) });
     if (!listing) {
-    throw new Error("Listing not found");
+      throw new Error("Listing not found");
     }
     return listing;
   } catch (error) {
@@ -99,23 +110,26 @@ async function getListingById(id) {
   }
 }
 
-
-// DELETE
+/**
+ * @better
+ * Deletes a property listing by its unique id.
+ * Throws an error if the listing does not exist or is already deleted.
+ * @param {string} id - The listing's unique id.
+ * @returns {Promise<object>} - Confirmation message.
+ */
 async function deleteListing(id) {
-  
   try {
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
     const result = await listingsCollection.deleteOne({ _id: toObjectId(id) });
     if (result.deletedCount === 0) {
-    throw new Error("Listing not found or already deleted");
+      throw new Error("Listing not found or already deleted");
     }
     return { message: "Listing deleted" };
   } catch (error) {
     throw new Error(`Error deleting listing: ${error.message}`);
   }
 }
-
 
 module.exports = {
   createListing,
