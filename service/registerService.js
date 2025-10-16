@@ -10,10 +10,10 @@ const bcrypt = require('bcrypt');
  */
 async function registerUser(data) {
     console.log(`[registerUser] Entry: email="${data?.email}"`);
-    const { email, password } = data;
+    const { email, password, firstName, surname } = data;
 
-    if (!email || !password) {
-        throw new Error("Email and password are required");
+    if (!email || !password || !firstName || !surname) {
+        throw new Error("Email, password, first name, and surname are required");
     }
 
     try {
@@ -30,10 +30,14 @@ async function registerUser(data) {
         // Hash password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const role = 'tenant'; // Default role
 
         const newUser = {
             email,
             password: hashedPassword,
+            firstName,
+            surname,
+            role,
             createdAt: new Date()
         };
 
@@ -50,8 +54,8 @@ async function registerUser(data) {
             userId,
             profile: {
                 username: "",
-                firstName: "",
-                surname: "",
+                firstName: firstName,
+                surname: surname,
                 email: email,
                 phone: "",
                 DoB: "",
