@@ -45,12 +45,14 @@ exports.googleMobileLogin = async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
+    const parts = payload.name.split(' ');
 
     let user = await authService.findUserByGoogleId(payload.sub);
     if (!user) {
       user = await authService.createUser({
         googleId: payload.sub,
-        name: payload.name,
+        firstName: parts [0],
+        surname: parts[1],
         email: payload.email,
         pfpImage: payload.picture,
       });
