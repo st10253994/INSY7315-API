@@ -65,7 +65,10 @@ async function createMaintenanceRequest(userID, listingID, data) {
             throw new Error("There are no active bookings with the property to log the maintenance Request for");
         }
 
+        const maintenanceID = await generateMaintenanceID();
+
         const newMaintenanceRequest = {
+            maintenanceId: maintenanceID,
             issue,
             description,
             priority,
@@ -108,7 +111,36 @@ async function getMaintenanceRequestForUserId(userID, listingID) {
     }
 }
 
+async function generateMaintenanceID(){
+  try {
+    const db = client.db("RentWise");
+    const maintenanceCollection = db.collection("Maintenance-Requests");
+
+    // Find the maintenance request with the highest maintenanceId number
+    const lastMaintenance = await maintenanceCollection
+      .findOne(
+        { maintenanceId: { $exists: true } },
+        { sort: { maintenanceId: -1 } }
+      );
+
+    let nextNumber = 1;
+
+    if (lastMaintenance && lastMaintenance.maintenanceId) {
+      // Extract the number from the maintenance ID (e.g., "M-0001" -> 1)
+      const lastNumber = parseInt(lastMaintenance.maintenanceId.split('-')[1]);
+      nextNumber = lastNumber + 1;
+    }
+
+    // Format the number with leading zeros (4 digits)
+    const formattedNumber = nextNumber.toString().padStart(4, '0');
+    return `B-${formattedNumber}`;
+  } catch (err) {
+    throw new Error("Error generating booking ID: " + err.message);
+  }
+}
+
 module.exports = {
     createMaintenanceRequest,
-    getMaintenanceRequestForUserId
+    getMaintenanceRequestForUserId,
+    generateMaintenanceID
 };
