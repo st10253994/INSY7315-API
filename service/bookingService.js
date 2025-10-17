@@ -73,7 +73,10 @@ async function createBooking(userID, listingID, data) {
           createdAt: new Date() 
         };
 
+        const bookingID = await generateBookingID();
+
     const newBooking = {
+      bookingId: bookingID,
       checkInDate,
       checkOutDate,
       numberOfGuests,
@@ -190,10 +193,39 @@ async function deleteBooking(id) {
   return { message: 'Booking deleted' };
 }
 
+async function generateBookingID(){
+  try {
+    const db = client.db("RentWise");
+    const bookingsCollection = db.collection("Bookings");
+
+    // Find the booking with the highest bookingId number
+    const lastBooking = await bookingsCollection
+      .findOne(
+        { bookingId: { $exists: true } },
+        { sort: { bookingId: -1 } }
+      );
+
+    let nextNumber = 1;
+
+    if (lastBooking && lastBooking.bookingId) {
+      // Extract the number from the booking ID (e.g., "B-0001" -> 1)
+      const lastNumber = parseInt(lastBooking.bookingId.split('-')[1]);
+      nextNumber = lastNumber + 1;
+    }
+
+    // Format the number with leading zeros (4 digits)
+    const formattedNumber = nextNumber.toString().padStart(4, '0');
+    return `B-${formattedNumber}`;
+  } catch (err) {
+    throw new Error("Error generating booking ID: " + err.message);
+  }
+}
+
 module.exports = {
   createBooking,
   getAllBookings,
   getBookingById,
   deleteBooking,
-  updateBooking
+  updateBooking,
+  generateBookingID
 };
