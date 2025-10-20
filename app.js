@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });
 });
 
+
 // Connect to MongoDB
 connectMongo();
 
@@ -52,8 +53,10 @@ app.get('/api/:listingID/reviews', checkAuth, reviewController.getAllReviews);
 app.post('/api/reviews/:userID/:listingID/create', checkAuth, reviewController.createReview);
 
 // User Routes
-app.post('/api/users/register', userController.registerUser);
-app.post('/api/users/login', userController.loginUser);
+app.post('/api/users/register', userController.register);
+app.post('/api/users/login', userController.login);
+
+//profile routes
 app.get('/api/users/:id', userController.getUserById);   
 app.post('/api/users/:id/profile', checkAuth, pfpUpload.single('profilePicture'), userController.postUserProfile);
 
@@ -66,7 +69,7 @@ app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, mainte
 app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaintenanceRequestForUserId);
 
 //GoogleAuth Routes
-app.post('/auth/google/mobile', (req, res) => googleController.googleMobileLogin(req, res));
+app.post('/auth/google/mobile', googleController.googleMobileLogin);
 
 // Start server
 app.listen(PORT, () => {
