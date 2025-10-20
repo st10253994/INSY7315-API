@@ -82,7 +82,7 @@ async function loginUser(userData) {
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    return { token };
+    return { token, userId: user._id };
 }
 
 module.exports = {
