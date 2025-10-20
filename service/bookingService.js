@@ -2,6 +2,7 @@
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
 const listingDetails = require('./listingService');
+const { generateBookingID } = require('../util/IdGeneration/idGeneration');
 
 /**
  * Converts a value to a MongoDB ObjectId if valid.
@@ -62,15 +63,6 @@ async function createBooking(userID, listingID, data) {
     
         const listingDetail = {
           listingID: listingInfo._id,
-          title: listingInfo.title,
-          address: listingInfo.address,
-          description: listingInfo.description,
-          amenities: listingInfo.amenities,
-          images: listingInfo.imagesURL,
-          price: listingInfo.parsedPrice,
-          isFavourited: true, 
-          landlordInfo: listingInfo.landlordInfo,
-          createdAt: new Date() 
         };
 
         const bookingID = await generateBookingID();
@@ -191,34 +183,6 @@ async function deleteBooking(id) {
 
   console.log(`[deleteBooking] Exit: Booking deleted for bookingId="${id}"`);
   return { message: 'Booking deleted' };
-}
-
-async function generateBookingID(){
-  try {
-    const db = client.db("RentWise");
-    const bookingsCollection = db.collection("Bookings");
-
-    // Find the booking with the highest bookingId number
-    const lastBooking = await bookingsCollection
-      .findOne(
-        { bookingId: { $exists: true } },
-        { sort: { bookingId: -1 } }
-      );
-
-    let nextNumber = 1;
-
-    if (lastBooking && lastBooking.bookingId) {
-      // Extract the number from the booking ID (e.g., "B-0001" -> 1)
-      const lastNumber = parseInt(lastBooking.bookingId.split('-')[1]);
-      nextNumber = lastNumber + 1;
-    }
-
-    // Format the number with leading zeros (4 digits)
-    const formattedNumber = nextNumber.toString().padStart(4, '0');
-    return `B-${formattedNumber}`;
-  } catch (err) {
-    throw new Error("Error generating booking ID: " + err.message);
-  }
 }
 
 module.exports = {
