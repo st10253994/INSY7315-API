@@ -52,7 +52,7 @@ async function favouriteListing(userID, listingID) {
       description: listingInfo.description,
       amenities: listingInfo.amenities,
       images: listingInfo.imagesURL,
-      price: listingInfo.parsedPrice,
+      price: listingInfo.price,
       isFavourited: true,
       landlordInfo: listingInfo.landlordInfo,
       createdAt: new Date()
