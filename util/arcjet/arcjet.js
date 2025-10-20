@@ -1,6 +1,5 @@
-import dotenv from 'dotenv';
-const arcjet = { shield, detectBot, slidingWindow, validateEmail };
-const arcjet = require('@arcjet/node'); 
+const dotenv = require('dotenv');
+const { default: arcjet, shield, detectBot, slidingWindow, validateEmail } = require('@arcjet/node');
 dotenv.config();
 
 // https://docs.arcjet.com/get-started?f=node-js-express
@@ -36,4 +35,4 @@ const aj = arcjet({
   ],
 });
 
-export default aj;
+module.exports = aj;

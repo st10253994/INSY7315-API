@@ -62,10 +62,11 @@ async function loginUser(userData) {
         throw new Error('Email and password are required');
     }
 
-    //validate email and password
+    //sanitize inputs
     validate.sanitizeInput(email);
     validate.sanitizeInput(password);
 
+    //validate email and password
     validate.validateEmail(email);
     validate.validatePassword(password);
 

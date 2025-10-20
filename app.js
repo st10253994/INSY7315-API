@@ -4,6 +4,7 @@ const { connectMongo } = require('./database/db');
 const { checkAuth } = require('./Auth/checkAuth');
 const { upload, uploadFiles, maintenanceUpload, pfpUpload } = require('./database/cloudinary');
 const cors = require('cors');
+const { arcjetMiddleware } = require('./util/arcjet/arcjet_Middleware');
 
 const PORT = process.env.PORT || 3000;
 
@@ -53,8 +54,8 @@ app.get('/api/:listingID/reviews', checkAuth, reviewController.getAllReviews);
 app.post('/api/reviews/:userID/:listingID/create', checkAuth, reviewController.createReview);
 
 // User Routes
-app.post('/api/users/register', userController.register);
-app.post('/api/users/login', userController.login);
+app.post('/api/users/register', arcjetMiddleware, userController.register);
+app.post('/api/users/login', arcjetMiddleware, userController.login);
 
 //profile routes
 app.get('/api/users/:id', userController.getUserById);   
