@@ -5,19 +5,35 @@ exports.register = async (req, res) => {
     try{
         const userData = req.body;
         const newUser = await userService.registerUser(userData);
-        res.status(201).json(newUser);
+        res.status(201).json({
+            success: true,
+            message: "User registered successfully",
+            data: newUser
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: "Registration failed",
+            error: error.message 
+        });
     }
 };
 
 exports.login = async (req, res) => {
     try {
         const userData = req.body;
-        const token = await userService.loginUser(userData);
-        res.status(200).json({ token });
+        const result = await userService.loginUser(userData);
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: result
+        });
     } catch (error) {
-        res.status(401).json({ error: error.message });
+        res.status(401).json({ 
+            success: false,
+            message: "Login failed",
+            error: error.message 
+        });
     }
 };
 
