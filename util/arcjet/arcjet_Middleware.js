@@ -14,6 +14,17 @@ const LEGITIMATE_EMAIL_DOMAINS = [
   'msn.com'
 ];
 
+// List of legitimate user agents that might be flagged as bots
+const LEGITIMATE_USER_AGENTS = [
+  'okhttp', // Android/mobile apps using OkHttp
+  'retrofit', // Android networking library
+  'postman', // API testing
+  'insomnia', // API testing
+  'curl', // Command line testing
+  'axios', // JavaScript HTTP client
+  'fetch' // Browser fetch API
+];
+
 /**
  * Check if email domain is from a legitimate provider
  */
@@ -25,21 +36,39 @@ function isLegitimateEmailDomain(email) {
 }
 
 /**
+ * Check if user agent appears to be from legitimate development/mobile tools
+ */
+function isLegitimateUserAgent(userAgent) {
+  if (!userAgent || typeof userAgent !== 'string') return false;
+  
+  const ua = userAgent.toLowerCase();
+  return LEGITIMATE_USER_AGENTS.some(agent => ua.includes(agent));
+}
+
+/**
  * Arcjet middleware with enhanced legitimate user handling
  */
 exports.arcjetMiddleware = async (req, res, next) => {
   try {
     const email = req.body.prefLogin || req.body.email;
+    const userAgent = req.get('User-Agent') || '';
     
     // Skip email validation for legitimate domains but still check for bots and rate limiting
     const skipEmailValidation = isLegitimateEmailDomain(email);
+    const isLegitimateUA = isLegitimateUserAgent(userAgent);
+    
+    console.log("Request details:", {
+      email: email,
+      userAgent: userAgent,
+      isLegitimateEmail: skipEmailValidation,
+      isLegitimateUserAgent: isLegitimateUA
+    });
     
     const decision = await aj.protect(req, { 
       email: skipEmailValidation ? undefined : email 
     });
     
     console.log("Arcjet decision:", decision);
-    console.log("Email domain legitimate:", skipEmailValidation);
 
     if (decision.isDenied()) {
       if (decision.reason.isRateLimit()) {
@@ -50,15 +79,20 @@ exports.arcjetMiddleware = async (req, res, next) => {
             error: "Rate limit exceeded. Please try again later." 
           });
       } else if (decision.reason.isBot()) {
-        // Check if this might be a false positive for legitimate users
-        if (skipEmailValidation) {
-          console.log("Bot detection triggered for legitimate email domain, allowing with warning");
-          // Log the incident but allow the request
-          console.warn(`Potential false positive bot detection for email: ${email}`);
+        // Check if this might be a false positive for legitimate users/tools
+        if (skipEmailValidation || isLegitimateUA) {
+          console.log("Bot detection triggered for legitimate user/tool, allowing with warning");
+          console.warn(`Potential false positive bot detection:`, {
+            email: email,
+            userAgent: userAgent,
+            reason: 'Legitimate email domain or development tool detected'
+          });
+          // Allow the request to proceed
         } else {
           return res.status(403).json({ 
             success: false,
-            error: "Bot access denied." 
+            error: "Bot access denied.",
+            hint: "If you're using a mobile app or development tool, this might be a false positive."
           });
         }
       } else if (decision.reason.isEmail() && !skipEmailValidation) {
@@ -80,9 +114,14 @@ exports.arcjetMiddleware = async (req, res, next) => {
           error: `Invalid Email: ${errorString}` 
         });
       } else {
-        // For other security reasons, be more lenient with legitimate email domains
-        if (skipEmailValidation) {
-          console.warn(`Security policy triggered for legitimate email: ${email}, allowing with warning`);
+        // For other security reasons, be more lenient with legitimate email domains and user agents
+        if (skipEmailValidation || isLegitimateUA) {
+          console.warn(`Security policy triggered for legitimate user/tool:`, {
+            email: email,
+            userAgent: userAgent,
+            decision: decision.reason
+          });
+          // Allow with warning
         } else {
           return res.status(403).json({
             success: false,
@@ -92,13 +131,20 @@ exports.arcjetMiddleware = async (req, res, next) => {
       }
     }
 
-    // Check for definitely malicious spoofed bots (keep this strict)
+    // Check for definitely malicious spoofed bots (but be lenient with legitimate tools)
     if (decision.results.some(isSpoofedBot)) {
-      return res.status(403).json({
-        success: false,
-        error: "Spoofed bot detected",
-        message: "Malicious bot activity detected.",
-      });
+      if (skipEmailValidation || isLegitimateUA) {
+        console.warn("Spoofed bot detection triggered for legitimate user/tool, allowing:", {
+          email: email,
+          userAgent: userAgent
+        });
+      } else {
+        return res.status(403).json({
+          success: false,
+          error: "Spoofed bot detected",
+          message: "Malicious bot activity detected.",
+        });
+      }
     }
 
     next();
