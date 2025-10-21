@@ -49,13 +49,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         
         const listingDetail = {
             listingID: listingInfo._id,
-            title: listingInfo.title,
-            address: listingInfo.address,
-            description: listingInfo.description,
-            amenities: listingInfo.amenities,
-            images: listingInfo.imagesURL,
-            price: listingInfo.parsedPrice,
-            landlordInfo: listingInfo.landlordInfo
+            address: listingInfo.address
         };
 
         // Only allow maintenance requests for accepted bookings
@@ -79,7 +73,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         const result = await maintenanceCollection.insertOne({
             userId: toObjectId(userID),
             listingDetail,
-            bookingId: toObjectId(booking._id),
+            bookingId: booking.bookingId,
             newMaintenanceRequest
         });
         console.log(`[createMaintenanceRequest] Exit: Maintenance request created with id="${result.insertedId}"`);
