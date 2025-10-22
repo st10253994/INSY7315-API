@@ -26,7 +26,8 @@ exports.createMaintenanceRequest = async (req, res) => {
         res.status(201).json(maintenanceRequest);
     } catch (error) {
         console.error(`[createMaintenanceRequest] Error: ${error.message}`);
-        res.status(400).json({ error: error.message });
+        console.error(`[createMaintenanceRequest] Full error:`, error);
+        res.status(400).json({ error: error.message || 'Unknown error occurred' });
     }
 };
 
