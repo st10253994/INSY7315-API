@@ -32,7 +32,12 @@ async function generateBookingID(){
   return generateEntityId("booking", "B", "Bookings", "bookingId");
 }
 
+async function generateMaintenanceID(){
+  return generateEntityId("maintenance", "M", "Maintenance-Requests", "maintenanceId");
+}
+
 module.exports = {
   generateEntityId,
-  generateBookingID
+  generateBookingID,
+  generateMaintenanceID
 };
