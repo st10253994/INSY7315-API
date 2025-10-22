@@ -34,7 +34,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         const listingCollection = db.collection('Listings')
         const bookingCollection = db.collection('Bookings');
 
-        const {issue, description, priority, documentsURL = []} = data;
+        const {issue, description, priority, documentURL = []} = data;
 
         if(!issue || !description || !priority){
             throw new Error ('All data fields have to be filled in');
@@ -49,6 +49,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         
         const listingDetail = {
             listingID: listingInfo._id,
+            landlordID: listingInfo.landlordInfo.landlord,
             address: listingInfo.address
         };
 
@@ -66,7 +67,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
             issue,
             description,
             priority,
-            documentsURL,
+            documentURL,
             createdAt: new Date()
         };
 

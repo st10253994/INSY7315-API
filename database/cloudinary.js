@@ -20,6 +20,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'listings', // folder in Cloudinary
     allowed_formats: ['jpg', 'jpeg', 'png'],
+    public_id: (req, file) => file.originalname.split('.')[0], // Use original filename without extension
     transformation: [{ width: 800, height: 800, crop: "limit" }], // optional
   },
 });
@@ -30,6 +31,7 @@ const pfpStorage = new CloudinaryStorage({
   params: {
     folder: 'profilePicture', // folder in Cloudinary
     allowed_formats: ['jpg', 'jpeg', 'png'],
+    public_id: (req, file) => file.originalname.split('.')[0], // Use original filename without extension
     transformation: [{ width: 800, height: 800, crop: "limit" }], // optional
   },
 });
@@ -42,6 +44,7 @@ const dynamicStorage = new CloudinaryStorage({
     return {
       folder: isImage ? "BookingImages" : "bookingFiles",
       resource_type: isImage ? "image" : "raw",
+      public_id: file.originalname.split('.')[0], // Use original filename without extension
       allowed_formats: isImage 
         ? ["jpg", "png", "jpeg"]
         : ["pdf", "docx", "doc"],
@@ -54,7 +57,9 @@ const maintenanceStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'Maintenance', // folder in Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png'],
+    resource_type: 'auto', // automatically detect if it's image or raw file
+    public_id: (req, file) => file.originalname.split('.')[0], // Use original filename without extension
+    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'doc'],
     transformation: [{ width: 800, height: 800, crop: "limit" }], // optional
   },
 });

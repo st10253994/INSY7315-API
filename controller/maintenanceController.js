@@ -19,7 +19,7 @@ exports.createMaintenanceRequest = async (req, res) => {
         }
 
         const documentURLs = files.map(file => file.path);
-        const data = { ...req.body, documentsURL: documentURLs };
+        const data = { ...req.body, documentURL: documentURLs };
 
         const maintenanceRequest = await maintenance.createMaintenanceRequest(userID, listingID, data);
         console.log(`[createMaintenanceRequest] Exit: Maintenance request created for userID="${userID}", listingID="${listingID}"`);
