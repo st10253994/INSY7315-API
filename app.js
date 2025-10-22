@@ -11,6 +11,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json()); // Parse JSON bodies
 app.use(cors()) // Enable CORS for all routes
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Request body:', req.body);
+  next();
+});
+
 // Simple test route
 app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });

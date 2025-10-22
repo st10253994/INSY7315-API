@@ -28,6 +28,7 @@ function toObjectId(id) {
  */
 async function createMaintenanceRequest(userID, listingID, data) {
     console.log(`[createMaintenanceRequest] Entry: userID="${userID}", listingID="${listingID}"`);
+    console.log(`[createMaintenanceRequest] Data received:`, data);
     try{
         const db = client.db('RentWise');
         const maintenanceCollection = db.collection('Maintenance-Requests');
