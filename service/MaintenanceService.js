@@ -56,7 +56,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         };
 
         // Only allow maintenance requests for accepted bookings
-        const booking = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID), 'newBooking.status': 'Active' });
+        const booking = await bookingCollection.findOne({ userId: toObjectId(userID), 'listingDetail.listingID': toObjectId(listingID), 'newBooking.status': { $in: ['Active', 'active', 'ACCEPTED', 'accepted'] } });
 
         if(!booking){
             throw new Error("There are no active bookings with the property to log the maintenance Request for");
