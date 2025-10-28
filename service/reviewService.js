@@ -28,7 +28,7 @@ function toObjectId(id) {
 async function createReview(userID, listingID, data) {
   console.log(`[createReview] Entry: userID="${userID}", listingID="${listingID}"`);
   const { rating, comment } = data;
-  if (!rating) {
+  if (rating === undefined || rating === null) {
     throw new Error("listingID and rating are required");
   }
   if (rating < 1 || rating > 5) {

@@ -5,7 +5,7 @@
 const sanitizer = require('sanitizer');
 
 //regex patterns for validation
-const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/; //comprehensive email regex
+const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/; //comprehensive email regex - requires at least one TLD
 const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; //minimum 8 characters, at least one letter, one number, and one special character
 const usernamePattern = /^[a-zA-Z0-9_]{3,30}$/; //alphanumeric and underscores, 3-30 characters
 const datePattern = /^\d{2}-\d{2}-\d{4}$/; //DD-MM-YYYY format

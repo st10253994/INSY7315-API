@@ -21,8 +21,12 @@ async function registerUser(userData) {
     validate.sanitizeInput(email);
     validate.sanitizeInput(password);
 
-    validate.validateEmail(email);
-    validate.validatePassword(password);
+    if (!validate.validateEmail(email)) {
+        throw new Error('Invalid email format');
+    }
+    if (!validate.validatePassword(password)) {
+        throw new Error('Password must be at least 8 characters with letters, numbers, and special characters');
+    }
 
     //check if user already exists
     const existingUser = await usersCollection.findOne({ email: userData.email });
@@ -67,8 +71,12 @@ async function loginUser(userData) {
     validate.sanitizeInput(password);
 
     //validate email and password
-    validate.validateEmail(email);
-    validate.validatePassword(password);
+    if (!validate.validateEmail(email)) {
+        throw new Error('Invalid email format');
+    }
+    if (!validate.validatePassword(password)) {
+        throw new Error('Password must be at least 8 characters with letters, numbers, and special characters');
+    }
 
     const user = await usersCollection.findOne({ email: email });
 
