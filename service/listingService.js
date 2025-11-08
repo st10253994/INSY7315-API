@@ -33,6 +33,18 @@ async function getAllListings() {
   }
 }
 
+//get all the listings that are currently booked by a user
+async function getAllListingsThatAreBooked(userID) {
+  try {
+    const db = client.db('RentWise');
+    const bookingsCollection = db.collection('Bookings');
+    const bookedListings = await bookingsCollection.find({ userId: toObjectId(userID) }).toArray();
+    return bookedListings;
+  } catch (error) {
+    throw new Error(`Error fetching booked listings: ${error.message}`);
+  }
+}
+
 /**
  * @better
  * Retrieves a single property listing by its unique id.
@@ -78,5 +90,6 @@ async function deleteListing(id) {
 module.exports = {
   getAllListings,
   getListingById,
-  deleteListing
+  deleteListing,
+  getAllListingsThatAreBooked
 };

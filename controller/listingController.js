@@ -96,3 +96,15 @@ exports.deleteListing = async (req, res) => {
   }
 };
 
+exports.getAllListingsThatAreBooked = async (req, res) => {
+  const userId = req.params.id;
+  console.log(`[getAllListingsThatAreBooked] Entry: userId="${userId}"`);
+  try {
+    const bookedListings = await listingService.getAllListingsThatAreBooked(userId);
+    console.log(`[getAllListingsThatAreBooked] Exit: Found ${bookedListings.length} booked listings`);
+    res.status(200).json(bookedListings);
+  } catch (error) {
+    console.error(`[getAllListingsThatAreBooked] Error: ${error.message}`);
+    res.status(500).json({ error: error.message });
+  }
+};
