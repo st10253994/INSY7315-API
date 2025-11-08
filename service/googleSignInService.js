@@ -28,7 +28,7 @@ class googleSignInService {
      * @type {import('mongodb').Collection}
      * @description MongoDB collection for system users.
      */
-    this.collection = client.db().collection('System-Users');
+    this.collection = client.db('RentWise').collection('System-Users');
   }
 
   /**
