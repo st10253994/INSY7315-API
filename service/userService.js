@@ -9,6 +9,7 @@ dotenv.config();
 async function registerUser(userData) {
     const db = client.db('RentWise');
     const usersCollection = db.collection('System-Users');
+    const userProfileCollection = db.collection('User-Settings');
 
     const {email, password, firstName, surname} = userData;
 
@@ -51,6 +52,22 @@ async function registerUser(userData) {
     }
 
     const result = await usersCollection.insertOne(newUser);
+
+    const profile = {
+        userId: result.insertedId,
+        username: "",
+        firstName: firstName,
+        surname: surname,
+        email: email,
+        phone: "",
+        DoB: "",
+        notifications: true,
+        preferredLanguage: "en",
+        offlineSync: true
+    }
+
+    await userProfileCollection.insertOne(profile);
+
     return { id: result.insertedId, email: newUser.email, firstName: newUser.firstName, surname: newUser.surname, role: newUser.role };
 }
 
