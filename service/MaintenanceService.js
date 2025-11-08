@@ -63,6 +63,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         }
 
         const maintenanceID = await generateMaintenanceID();
+        const status = 'Pending';
 
         const newMaintenanceRequest = {
             maintenanceId: maintenanceID,
@@ -70,7 +71,8 @@ async function createMaintenanceRequest(userID, listingID, data) {
             description,
             priority,
             documentURL,
-            createdAt: new Date()
+            createdAt: new Date(),
+            status: status
         };
 
         const result = await maintenanceCollection.insertOne({
