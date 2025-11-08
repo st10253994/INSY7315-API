@@ -47,47 +47,29 @@ async function postUserProfile(id, data) {
   const userSettings = db.collection('User-Settings');
 
   // Fetch existing document
-  const existingDoc = await userSettings.findOne({ userId: toObjectId(id) });
+  const existingProfile = await userSettings.findOne({ userId: toObjectId(id) });
 
-  // Existing profile or empty
-  const existingProfile = existingDoc?.profile || {};
+  // Prepare updated profile data
+  const updatedProfile = { ...existingProfile, ...data, userId: toObjectId(id) };
 
-  const booleanFields = ["notifications", "offlineSync"];
-  booleanFields.forEach(field => {
-    if (data[field] !== undefined) {
-      data[field] = data[field] === "true"; // convert string to boolean
-    } else if (existingProfile[field] === undefined) {
-      data[field] = false; // default false if not sent and not in existing profile
-    }
-  });
+  // Ensure boolean fields are correctly handled
+  if (data.hasOwnProperty('notifications')) {
+    updatedProfile.notifications = Boolean(data.notifications);
+  }
 
-  // Merge: user-provided fields override existing ones
-  const newProfile = {
-    ...existingProfile,
-    ...data
-  };
+  if (data.hasOwnProperty('offlineSync')) {
+    updatedProfile.offlineSync = Boolean(data.offlineSync);
+  }
 
-  const updatedAt = new Date();
-
+  // Upsert the profile document
   await userSettings.updateOne(
     { userId: toObjectId(id) },
-    {
-      $set: {
-        userId: toObjectId(id),
-        profile: newProfile,
-        updatedAt
-      }
-    },
+    { $set: updatedProfile },
     { upsert: true }
   );
+  console.log(`[postUserProfile] Exit: Profile upserted for userId="${id}"`);
+  return { message: 'Profile updated', profile: updatedProfile };
 
-  console.log(`[postUserProfile] Exit: Profile updated for userId="${id}"`);
-  return {
-    message: "Profile Updated Successfully",
-    userId: toObjectId(id),
-    profile: newProfile,
-    updatedAt
-  };
 }
 
 module.exports = { getProfileById, postUserProfile };
