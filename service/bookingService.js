@@ -31,6 +31,7 @@ async function createBooking(userID, listingID, data) {
   try{
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
+    const listingsCollection = db.collection('Listings');
 
     const { checkInDate, checkOutDate, numberOfGuests, supportDocuments = [], totalPrice } = data;
 
@@ -62,7 +63,7 @@ async function createBooking(userID, listingID, data) {
     const listingInfo = await listingDetails.getListingById(listingID);
     
         const listingDetail = {
-          listingID: listingInfo._id,
+          listingID: listingInfo._id
         };
 
         const bookingID = await generateBookingID();
@@ -77,6 +78,12 @@ async function createBooking(userID, listingID, data) {
       status: 'Pending',
       createdAt: new Date()
     };
+
+    //update listing status to 'Booked'
+    await listingsCollection.updateOne(
+      { _id: listingObjectId },
+      { $set: { status: 'Booked' } }
+    );
 
     const result = await bookingsCollection.insertOne({
       userId: toObjectId(userID),

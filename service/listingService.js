@@ -26,7 +26,7 @@ async function getAllListings() {
   try {
     const db = client.db('RentWise');
     const listingsCollection = db.collection('Listings');
-    const listings = await listingsCollection.find({}).toArray();
+    const listings = await listingsCollection.find({status: 'Vacant'}).toArray();
     return listings;
   } catch (error) {
     throw new Error(`Error fetching all listings: ${error.message}`);
