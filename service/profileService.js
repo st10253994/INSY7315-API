@@ -52,15 +52,6 @@ async function postUserProfile(id, data) {
   // Prepare updated profile data
   const updatedProfile = { ...existingProfile, ...data, userId: toObjectId(id) };
 
-  // Ensure boolean fields are correctly handled
-  if (data.hasOwnProperty('notifications')) {
-    updatedProfile.notifications = Boolean(data.notifications);
-  }
-
-  if (data.hasOwnProperty('offlineSync')) {
-    updatedProfile.offlineSync = Boolean(data.offlineSync);
-  }
-
   // Upsert the profile document
   await userSettings.updateOne(
     { userId: toObjectId(id) },
