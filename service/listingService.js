@@ -47,12 +47,25 @@ async function getAllListingsThatAreBooked(userID) {
       return [];
     }
     
-    // Extract listing IDs from bookings
-    const listingIds = userBookings.map(booking => toObjectId(booking.listingDetail.listingID));
+    // Extract listing IDs from bookings, filtering out invalid ones
+    const validListingIds = [];
+    for (const booking of userBookings) {
+      try {
+        if (booking.listingDetail && booking.listingDetail.listingID) {
+          validListingIds.push(toObjectId(booking.listingDetail.listingID));
+        }
+      } catch (error) {
+        console.warn(`Skipping invalid listing ID: ${booking.listingDetail?.listingID}`);
+      }
+    }
+    
+    if (validListingIds.length === 0) {
+      return [];
+    }
     
     // Get only the listing title and ID
     const bookedListings = await listingsCollection.find({ 
-      _id: { $in: listingIds } 
+      _id: { $in: validListingIds } 
     }, { 
       projection: { _id: 1, title: 1 } 
     }).toArray();
