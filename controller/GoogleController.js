@@ -69,7 +69,8 @@ exports.googleMobileLogin = async (req, res) => {
     if (!user) {
       user = await authService.createUser({
         googleId: payload.sub,
-        firstName: parts [0],
+        name: payload.name,
+        firstName: parts[0],
         surname: parts[1],
         email: payload.email,
         pfpImage: payload.picture,

@@ -54,13 +54,16 @@ class googleSignInService {
       createdAt: new Date(),
     };
 
-    const parts = userData.name.split(' ');
+    // Safely split the name, with fallbacks
+    const parts = userData.name ? userData.name.split(' ') : [];
+    const firstName = userData.firstName || parts[0] || 'Unknown';
+    const surname = userData.surname || parts[1] || 'User';
 
     console.log(user);
 
     const profile = {
-      firstName: parts[0],
-      surname: parts[1],
+      firstName: firstName,
+      surname: surname,
       email: userData.email,
       pfpImage: userData.pfpImage
     };
