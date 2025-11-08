@@ -78,7 +78,6 @@ app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, mainte
 app.get('/api/:userID/maintenance/request', checkAuth, maintenanceController.getMaintenanceRequestForUserId);
 
 //GoogleAuth Routes
-app.get('/auth/google/test-config', googleController.testGoogleConfig);
 app.post('/auth/google/mobile', googleController.googleMobileLogin);
 
 // Start server
