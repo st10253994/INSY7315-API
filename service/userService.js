@@ -63,7 +63,8 @@ async function registerUser(userData) {
         DoB: "",
         notifications: true,
         preferredLanguage: "en",
-        offlineSync: true
+        offlineSync: true,
+        pfpImage: ""
     }
 
     await userProfileCollection.insertOne(profile);
