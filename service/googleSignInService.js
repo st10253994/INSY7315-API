@@ -51,6 +51,7 @@ class googleSignInService {
   async createUser(userData) {
     const user = {
       ...userData,
+      role: 'tenant',
       createdAt: new Date(),
     };
 
@@ -65,7 +66,7 @@ class googleSignInService {
       firstName: firstName,
       surname: surname,
       email: userData.email,
-      pfpImage: userData.pfpImage
+      profilePicture: userData.pfpImage
     };
 
     const result = await this.collection.insertOne(user);
