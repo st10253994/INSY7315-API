@@ -38,7 +38,25 @@ async function getAllListingsThatAreBooked(userID) {
   try {
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
-    const bookedListings = await bookingsCollection.find({ userId: toObjectId(userID) }).toArray();
+    const listingsCollection = db.collection('Listings');
+    
+    // Find all bookings for the user
+    const userBookings = await bookingsCollection.find({ userId: toObjectId(userID) }).toArray();
+    
+    if (userBookings.length === 0) {
+      return [];
+    }
+    
+    // Extract listing IDs from bookings
+    const listingIds = userBookings.map(booking => toObjectId(booking.listingDetail.listingID));
+    
+    // Get only the listing title and ID
+    const bookedListings = await listingsCollection.find({ 
+      _id: { $in: listingIds } 
+    }, { 
+      projection: { _id: 1, title: 1 } 
+    }).toArray();
+    
     return bookedListings;
   } catch (error) {
     throw new Error(`Error fetching booked listings: ${error.message}`);
