@@ -49,7 +49,7 @@ app.get('/api/listings', checkAuth, listingController.getAllListings);
 app.post('/api/:id/listings/create', checkAuth, upload.array('imageURL', 10), listingController.createListing);
 app.get('/api/listings/:id', checkAuth, listingController.getListingById);
 app.delete('/api/listings/:id/delete', checkAuth, listingController.deleteListing);
-app.get('/api/:userID/bookedListings', checkAuth, listingController.getAllListingsThatAreBooked);
+app.get('/api/:id/bookedListings', checkAuth, listingController.getAllListingsThatAreBooked);
 
 // Favourite Routes
 app.post('/api/:userID/:listingID/favourite', checkAuth, favouriteController.favouriteListing);
