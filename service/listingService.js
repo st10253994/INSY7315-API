@@ -36,12 +36,29 @@ async function getAllListings() {
 //get all the listings that are currently booked by a user
 async function getAllListingsThatAreBooked(userID) {
   try {
+    console.log(`[getAllListingsThatAreBooked] Entry: userID="${userID}"`);
+    
+    // Validate userID first
+    if (!userID) {
+      throw new Error("User ID is required");
+    }
+    
     const db = client.db('RentWise');
     const bookingsCollection = db.collection('Bookings');
     const listingsCollection = db.collection('Listings');
     
+    // Convert userID to ObjectId with error handling
+    let userObjectId;
+    try {
+      // Trim any whitespace that might be causing issues
+      const cleanUserID = userID.toString().trim();
+      userObjectId = toObjectId(cleanUserID);
+    } catch (error) {
+      throw new Error(`Invalid user ID format: "${userID}" (length: ${userID.length})`);
+    }
+    
     // Find all bookings for the user
-    const userBookings = await bookingsCollection.find({ userId: toObjectId(userID) }).toArray();
+    const userBookings = await bookingsCollection.find({ userId: userObjectId }).toArray();
     
     if (userBookings.length === 0) {
       return [];
@@ -70,8 +87,10 @@ async function getAllListingsThatAreBooked(userID) {
       projection: { _id: 1, title: 1 } 
     }).toArray();
     
+    console.log(`[getAllListingsThatAreBooked] Exit: Found ${bookedListings.length} booked listings`);
     return bookedListings;
   } catch (error) {
+    console.error(`[getAllListingsThatAreBooked] Error: ${error.message}`);
     throw new Error(`Error fetching booked listings: ${error.message}`);
   }
 }
