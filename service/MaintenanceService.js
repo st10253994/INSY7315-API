@@ -52,6 +52,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
         const listingDetail = {
             listingID: listingInfo._id,
             landlordID: listingInfo.landlordInfo.userId,
+            title: listingInfo.title,
             address: listingInfo.address
         };
 
