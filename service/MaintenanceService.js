@@ -1,8 +1,8 @@
 const { client } = require('../database/db');
-const { ObjectId } = require('mongodb'); 
+const { ObjectId } = require('mongodb');
 const listingDetails = require('./listingService');
-const bookingService = require('./bookingService');
 const { generateMaintenanceID } = require('../util/IdGeneration/idGeneration');
+const { createNotification } = require('./notificationService');
 
 /**
  * Converts a value to a MongoDB ObjectId if valid.
@@ -83,6 +83,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
             newMaintenanceRequest
         });
         console.log(`[createMaintenanceRequest] Exit: Maintenance request created with id="${result.insertedId}"`);
+        await createNotification(userID, 'New Maintenance Request Created', `A new maintenance request has been created with ID: ${maintenanceID}`);
         return { message: "New Maintenance Request has been submitted", maintenanceID: result.insertedId };
     }catch(error){
         console.error(`[createMaintenanceRequest] Error: ${error.message}`);
@@ -97,7 +98,7 @@ async function createMaintenanceRequest(userID, listingID, data) {
  * @returns {Promise<Array>} Array of maintenance request documents.
  * @throws {Error} If retrieval fails.
  */
-async function getMaintenanceRequestForUserId(userID, listingID) {
+async function getMaintenanceRequestForUserId(userID) {
     console.log(`[getMaintenanceRequestForUserId] Entry: userID="${userID}"`);
     try {
         const db = client.db('RentWise');

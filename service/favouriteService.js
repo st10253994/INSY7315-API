@@ -1,6 +1,7 @@
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb'); 
 const listingDetails = require('./listingService');
+const { createNotification } = require('./notificationService');
 
 /**
  * Converts a value to a MongoDB ObjectId if valid.
@@ -65,6 +66,9 @@ async function favouriteListing(userID, listingID) {
     });
 
     console.log(`[favouriteListing] Exit: Listing favourited with id="${result.insertedId}"`);
+
+    await createNotification(userID, 'New Favourite Added', `You favourited listing: ${listingInfo.title}`);
+
     return { message: "Listing favourited", favouriteId: result.insertedId };
   } catch (error) {
     console.error(`[favouriteListing] Error: ${error.message}`);
@@ -113,7 +117,7 @@ async function unfavouriteListing(userID, listingID) {
     const favouritesCollection = db.collection('Favourites');
     
     const result = await favouritesCollection.deleteOne({
-      userId: toObjectId(userID), 
+      userId: toObjectId(userID),
       "listingDetail.listingID": toObjectId(listingID)
     });
 
@@ -122,6 +126,7 @@ async function unfavouriteListing(userID, listingID) {
       throw new Error("there are not current favourites to delete");
     } else {
       console.log(`[unfavouriteListing] Exit: Listing unfavourited`);
+      await createNotification(userID, 'Favourite Removed', `You unfavourited listing with ID: ${listingID}`);
       return { message: "Listing unfavourited" };
     }
   } catch (error) {

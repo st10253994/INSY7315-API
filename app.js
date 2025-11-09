@@ -71,7 +71,6 @@ app.post('/api/users/:id/profile', checkAuth, pfpUpload.single('profilePicture')
 
 // Notification Routes
 app.get('/api/notifications', checkAuth, notificationController.getAllNotifications);
-app.post('/api/notifications/create', checkAuth, notificationController.createNotification);
 
 // Maintenance Routes
 app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, maintenanceUpload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);

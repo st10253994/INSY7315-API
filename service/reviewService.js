@@ -1,6 +1,6 @@
 const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
-const bookings = require('./bookingService');
+const { createNotification } = require('./notificationService');
 
 /**
  * Converts a value to a MongoDB ObjectId if valid.
@@ -68,6 +68,7 @@ async function createReview(userID, listingID, data) {
     };
     const result = await reviewsCollection.insertOne(newReview);
     console.log(`[createReview] Exit: Review created with id="${result.insertedId}"`);
+    await createNotification(userID, 'New Review Created', `You left a review on listing: ${listing.title}`);
     return { message: "Review created", reviewId: result.insertedId };
   } catch (error) {
     console.error(`[createReview] Error: ${error.message}`);

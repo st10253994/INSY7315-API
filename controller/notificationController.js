@@ -9,7 +9,8 @@ const notification = require('../service/notificationService');
 exports.getAllNotifications = async (req, res) => {
     console.log(`[getAllNotifications] Entry`);
     try {
-        const notifications = await notification.getAllNotifications();
+        const userId = req.params.userId;
+        const notifications = await notification.getAllNotifications(userId);
         console.log(`[getAllNotifications] Exit: Found ${notifications.length} notifications`);
         res.status(200).json(notifications);
     } catch (error) {

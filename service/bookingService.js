@@ -3,6 +3,7 @@ const { client } = require('../database/db');
 const { ObjectId } = require('mongodb');
 const listingDetails = require('./listingService');
 const { generateBookingID } = require('../util/IdGeneration/idGeneration');
+const { createNotification } = require('./notificationService');
 
 /**
  * Converts a value to a MongoDB ObjectId if valid.
@@ -91,6 +92,9 @@ async function createBooking(userID, listingID, data) {
       newBooking
     });
     console.log(`[createBooking] Exit: Booking created with id="${result.insertedId}"`);
+
+    await createNotification(userID, 'New Booking Created', `A new booking has been created with ID: ${bookingID}`);
+
     return { message: 'Booking created', bookingID: result.insertedId };
   }
   catch (error) {
