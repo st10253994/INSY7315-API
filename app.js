@@ -70,7 +70,7 @@ app.get('/api/users/:id', userController.getUserById);
 app.post('/api/users/:id/profile', checkAuth, pfpUpload.single('profilePicture'), userController.postUserProfile);
 
 // Notification Routes
-app.get('/api/notifications', checkAuth, notificationController.getAllNotifications);
+app.get('/api/:userID/notifications', checkAuth, notificationController.getAllNotifications);
 
 // Maintenance Routes
 app.post('/api/:userID/:listingID/maintenance/request/create', checkAuth, maintenanceUpload.array('documentURL', 10), maintenanceController.createMaintenanceRequest);
