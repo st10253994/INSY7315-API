@@ -1,16 +1,19 @@
 const { client } = require('../database/db');
-const { ObjectId } = require('mongodb');
+const { ObjectId } = require('mongodb'); 
 
 /**
- * Converts a value to a MongoDB ObjectId if valid.
+ * @better
+ * Converts a given id to a MongoDB ObjectId if possible.
+ * Throws an error if the id is not a valid ObjectId string.
  * @param {string|ObjectId} id - The id to convert.
  * @returns {ObjectId}
- * @throws {Error} If the id is not a valid ObjectId.
  */
 function toObjectId(id) {
-  if (id instanceof ObjectId) return id; // already valid
-  if (typeof id === "string") return new ObjectId(id);
-  throw new Error("Invalid id format");
+  if (id instanceof ObjectId) return id;
+  if (typeof id === "string" && ObjectId.isValid(id)) {
+    return new ObjectId(id);
+  }
+  throw new Error("Invalid id format: must be a valid ObjectId string");
 }
 
 /**
